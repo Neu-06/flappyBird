@@ -1,0 +1,25 @@
+# --- Java & Maven ---
+target/
+*.class
+*.jar
+*.war
+*.ear
+
+# --- IDE (VS Code) ---
+.settings/
+.project
+.classpath
+.factorypath
+.vscode/
+*.code-workspace
+
+# --- LWJGL & Sistema ---
+# Ignorar archivos temporales de extracción de nativos (si los hubiera)
+*.dll
+*.so
+*.dylib
+*.log
+
+# --- OS específicos ---
+.DS_Store
+Thumbs.db
