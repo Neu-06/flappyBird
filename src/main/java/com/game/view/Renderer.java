@@ -6,6 +6,7 @@ import java.nio.FloatBuffer;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
@@ -53,16 +54,28 @@ public class Renderer {
         // Config de ventana/contexto.
         GLFW.glfwDefaultWindowHints();
         GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_FALSE);
-        GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, GLFW.GLFW_TRUE);
+        GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, GLFW.GLFW_FALSE);
         GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, 3);
         GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, 3);
         GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_PROFILE, GLFW.GLFW_OPENGL_CORE_PROFILE);
         GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_FORWARD_COMPAT, GLFW.GLFW_TRUE);
 
+        // No permitir redimensionar la ventana.
+        GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, GLFW.GLFW_FALSE);
+
         // Crear ventana.
         window = GLFW.glfwCreateWindow(Constants.ANCHO, Constants.ALTO, "Flappy Bird OpenGL", 0, 0);
         if (window == 0) {
             throw new RuntimeException("No se pudo crear la ventana");
+        }
+
+        // Centrar ventana.
+        GLFWVidMode vidmode = GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor());
+        if (vidmode != null) {
+            GLFW.glfwSetWindowPos(
+                    window,
+                    (vidmode.width() - Constants.ANCHO) / 2,
+                    (vidmode.height() - Constants.ALTO) / 2);
         }
 
         // Contexto + VSync + mostrar.
