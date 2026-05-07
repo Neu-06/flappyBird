@@ -39,6 +39,16 @@ public class GameEngine {
     private boolean started;
     private boolean gameOver;
 
+    // ==========================================
+    // ESTADO DEL MENÚ
+    // ==========================================
+    // Determina si estamos viendo la pantalla inicial.
+    private boolean enMenu = true;
+
+    // Índice de la opción seleccionada.
+    // 0 = 1 Jugador, 1 = 2 Jugadores .
+    private int seleccionMenu = 0;
+
     /** Construye e interconecta todos los subsistemas. */
     public GameEngine() {
         renderer = new Renderer();
@@ -62,6 +72,7 @@ public class GameEngine {
         // InputHandler necesita el window handle disponible tras renderer.init().
         inputHandler = new InputHandler(this, renderer.getWindow());
         // Estado inicial listo para jugar.
+        enMenu = true;
         resetGame();
         loop();
         renderer.cleanup();
@@ -94,6 +105,23 @@ public class GameEngine {
      * Código original (rama SPACE de AppFlappyBird#procesarInput():
      */
     public void onSpacePressed() {
+        // SI ESTAMOS EN EL MENÚ
+        if (enMenu) {
+            // Confirmamos la selección actual
+            if (seleccionMenu == 0) {
+                // Seleccionó 1 Jugador: Empezamos el juego normal
+                enMenu = false;
+                resetGame();
+                started = true;
+                bird.saltar();
+            } else {
+                // Seleccionó 2 Jugadores: De momento no hace nada
+                System.out.println("Modo 2 jugadores aun no implementado.");
+            }
+            return;
+        }
+
+        // Lógica original de juego
         if (gameOver) {
             resetGame();
             started = true;
@@ -111,7 +139,31 @@ public class GameEngine {
      */
     public void onRPressed() {
         if (gameOver) {
+            // Al presionar R, volvemos al menú ---
+            enMenu = true;
             resetGame();
+        }
+    }
+
+    // ==========================================
+    // MÉTODOS DE NAVEGACIÓN DEL MENÚ
+    // ==========================================
+
+    /**
+     * Responde a la tecla ARRIBA o W para cambiar de opción en el menú.
+     */
+    public void onUpPressed() {
+        if (enMenu) {
+            seleccionMenu = 0; // Sube al primer botón (1 Jugador)
+        }
+    }
+
+    /**
+     * Responde a la tecla ABAJO o S para cambiar de opción en el menú.
+     */
+    public void onDownPressed() {
+        if (enMenu) {
+            seleccionMenu = 1; // Baja al segundo botón (2 Jugadores)
         }
     }
 
@@ -145,8 +197,15 @@ public class GameEngine {
 
             // Activar pipeline y malla base antes de los métodos de GameView.
             renderer.beginFrame();
-            gameView.renderScene(pipeManager, gameOver);
-            gameView.renderBird(bird);
+
+            if (enMenu) {
+                // Dibujar solo el menú inicial si estamos en la pantalla de inicio
+                gameView.renderMenu(seleccionMenu);
+            } else {
+                // Dibujo original del juego si ya empezamos a jugar
+                gameView.renderScene(pipeManager, gameOver);
+                gameView.renderBird(bird);
+            }
 
             // Presentar frame y leer eventos.
             renderer.endFrame();
@@ -168,6 +227,11 @@ public class GameEngine {
      * @param dt delta-time en segundos.
      */
     private void actualizar(float dt) {
+        // No actualizar física si estamos en el menú
+        if (enMenu) {
+            return;
+        }
+
         // Si aun no inicio o ya termino, no avanza simulacion.
         if (!started || gameOver) {
             return;

@@ -33,6 +33,10 @@ public class InputHandler {
     // Deteccion de flanco para SPACE y R (equivale a prevSpace / prevR originales).
     private boolean prevSpace;
     private boolean prevR;
+    
+    // --- NUEVO: Estado previo para navegación del menú ---
+    private boolean prevUp;
+    private boolean prevDown;
 
     /**
      * @param engine referencia al motor de juego.
@@ -77,5 +81,25 @@ public class InputHandler {
             engine.onRPressed();
         }
         prevR = rAhora;
+
+        // ==========================================
+        // NUEVO: TECLAS DE NAVEGACIÓN DEL MENÚ
+        // ==========================================
+        
+        // Flecha ARRIBA o W
+        boolean upAhora = GLFW.glfwGetKey(window, GLFW.GLFW_KEY_UP) == GLFW.GLFW_PRESS || 
+                          GLFW.glfwGetKey(window, GLFW.GLFW_KEY_W) == GLFW.GLFW_PRESS;
+        if (upAhora && !prevUp) {
+            engine.onUpPressed();
+        }
+        prevUp = upAhora;
+
+        // Flecha ABAJO o S
+        boolean downAhora = GLFW.glfwGetKey(window, GLFW.GLFW_KEY_DOWN) == GLFW.GLFW_PRESS || 
+                            GLFW.glfwGetKey(window, GLFW.GLFW_KEY_S) == GLFW.GLFW_PRESS;
+        if (downAhora && !prevDown) {
+            engine.onDownPressed();
+        }
+        prevDown = downAhora;
     }
 }
