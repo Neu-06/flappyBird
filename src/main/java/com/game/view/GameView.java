@@ -8,12 +8,15 @@ import com.game.view.renderers.PipeRenderer;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL30;
 
 /**
  * GameView:
  * El área de dibujo principal de la escena. Funciona como orquestador delegando
- * el trabajo detallado a renderizadores específicos para cada entidad, lo que permite
- * modificar su aspecto gráfico (ej: añadir PNGs o más geometría) de forma aislada.
+ * el trabajo detallado a renderizadores específicos para cada entidad, lo que
+ * permite
+ * modificar su aspecto gráfico (ej: añadir PNGs o más geometría) de forma
+ * aislada.
  */
 public class GameView {
 
@@ -83,5 +86,34 @@ public class GameView {
         GL20.glUniform3f(renderer.getUColorLocation(), r, g, b);
         // Dibujar 2 triangulos.
         GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, 6);
+    }
+
+    // Metodo para dibujar un circulo
+    public void dibujarCirculo(float x, float y, float ancho, float alto, float r, float g, float b) {
+        GL20.glUniform2f(renderer.getUOffsetLocation(), x, y);
+        GL20.glUniform2f(renderer.getUScaleLocation(), ancho, alto);
+        GL20.glUniform3f(renderer.getUColorLocation(), r, g, b);
+
+        // Cambiamos el VAO al del círculo antes de dibujar
+        GL30.glBindVertexArray(renderer.getVaoCirculo());
+        GL11.glDrawArrays(GL11.GL_TRIANGLE_FAN, 0, 32 + 2);
+
+        // Regresamos al VAO del quad para no romper otros dibujos
+        GL30.glBindVertexArray(renderer.getVao());
+    }
+
+    // Metodo para dibujar un triangulo
+    public void dibujarTriangulo(float x, float y, float ancho, float alto, float rotacion,
+            float r, float g, float b) {
+        // Traslacion del quad.
+        GL20.glUniform2f(renderer.getUOffsetLocation(), x, y);
+        // Escala del quad.
+        GL20.glUniform2f(renderer.getUScaleLocation(), ancho, alto);
+        // Rotacion
+        GL20.glUniform1f(renderer.getURotationLocation(), rotacion);
+        // Color.
+        GL20.glUniform3f(renderer.getUColorLocation(), r, g, b);
+        // Dibujar 1 triangulo.
+        GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, 3);
     }
 }

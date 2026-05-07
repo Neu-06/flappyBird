@@ -36,6 +36,12 @@ public class Renderer {
     private int uOffsetLocation;
     private int uScaleLocation;
     private int uColorLocation;
+    private int uRotationLocation;
+
+    // VAO y VBO para el circulo.
+    private int vaoCirculo;
+    private int vboCirculo;
+    private final int SEGMENTOS_CIRCULO = 32;
 
     // -------------------------------------------------------------------------
     // Inicialización
@@ -86,8 +92,35 @@ public class Renderer {
         GL.createCapabilities();
 
         // Crear pipeline y quad unitario reutilizable.
+        crearCirculoBase();
         crearShaders();
         crearQuadBase();
+    }
+
+    private void crearCirculoBase() {
+        // +2 por el centro y para cerrar el abanico
+        float[] vertices = new float[(SEGMENTOS_CIRCULO + 2) * 3];
+        vertices[0] = 0.0f; // Centro X
+        vertices[1] = 0.0f; // Centro Y
+        vertices[2] = 0.0f; // Centro Z
+
+        for (int i = 0; i <= SEGMENTOS_CIRCULO; i++) {
+            double angulo = Math.PI * 2 * i / SEGMENTOS_CIRCULO;
+            vertices[(i + 1) * 3] = (float) Math.cos(angulo) * 0.5f;
+            vertices[(i + 1) * 3 + 1] = (float) Math.sin(angulo) * 0.5f;
+            vertices[(i + 1) * 3 + 2] = 0.0f;
+        }
+
+        vaoCirculo = GL30.glGenVertexArrays();
+        GL30.glBindVertexArray(vaoCirculo);
+        vboCirculo = GL15.glGenBuffers();
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboCirculo);
+
+        FloatBuffer buffer = BufferUtils.createFloatBuffer(vertices.length);
+        buffer.put(vertices).flip();
+        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
+        GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 3 * Float.BYTES, 0);
+        GL20.glEnableVertexAttribArray(0);
     }
 
     /**
@@ -103,8 +136,18 @@ public class Renderer {
                 layout (location = 0) in vec3 aPos;
                 uniform vec2 uOffset;
                 uniform vec2 uScale;
+                uniform float uRotation;
+
                 void main() {
-                    vec2 finalPos = aPos.xy * uScale + uOffset;
+                    float cosA = cos(uRotation);
+                    float sinA = sin(uRotation);
+
+                    vec2 rotatedPos = vec2(
+                        aPos.x * cosA - aPos.y * sinA,
+                        aPos.x * sinA + aPos.y * cosA
+                    );
+
+                    vec2 finalPos = rotatedPos * uScale + uOffset;
                     gl_Position = vec4(finalPos, aPos.z, 1.0);
                 }
                 """;
@@ -145,7 +188,8 @@ public class Renderer {
         uOffsetLocation = GL20.glGetUniformLocation(programa, "uOffset");
         uScaleLocation = GL20.glGetUniformLocation(programa, "uScale");
         uColorLocation = GL20.glGetUniformLocation(programa, "uColor");
-        if (uOffsetLocation == -1 || uScaleLocation == -1 || uColorLocation == -1) {
+        uRotationLocation = GL20.glGetUniformLocation(programa, "uRotation");
+        if (uOffsetLocation == -1 || uScaleLocation == -1 || uColorLocation == -1 || uRotationLocation == -1) {
             throw new RuntimeException("No se pudieron obtener uniforms del shader");
         }
 
@@ -254,6 +298,8 @@ public class Renderer {
      * Extraído de AppFlappyBird#cleanup().
      */
     public void cleanup() {
+        GL30.glDeleteVertexArrays(vaoCirculo);
+        GL15.glDeleteBuffers(vboCirculo);
         GL30.glDeleteVertexArrays(vao);
         GL15.glDeleteBuffers(vbo);
         GL20.glDeleteProgram(programa);
@@ -283,5 +329,18 @@ public class Renderer {
     /** @return location del uniform {@code uColor}. */
     public int getUColorLocation() {
         return uColorLocation;
+    }
+
+    /** @return location del uniform {@code uRotation}. */
+    public int getURotationLocation() {
+        return uRotationLocation;
+    }
+
+    public int getVao() {
+        return vao;
+    }
+
+    public int getVaoCirculo() {
+        return vaoCirculo;
     }
 }
