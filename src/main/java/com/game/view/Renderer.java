@@ -41,7 +41,6 @@ public class Renderer {
     // VAO y VBO para el circulo.
     private int vaoCirculo;
     private int vboCirculo;
-    private final int SEGMENTOS_CIRCULO = 32;
 
     // -------------------------------------------------------------------------
     // Inicialización
@@ -99,13 +98,13 @@ public class Renderer {
 
     private void crearCirculoBase() {
         // +2 por el centro y para cerrar el abanico
-        float[] vertices = new float[(SEGMENTOS_CIRCULO + 2) * 3];
+        float[] vertices = new float[(Constants.SEGMENTOS_CIRCULO + 2) * 3];
         vertices[0] = 0.0f; // Centro X
         vertices[1] = 0.0f; // Centro Y
         vertices[2] = 0.0f; // Centro Z
 
-        for (int i = 0; i <= SEGMENTOS_CIRCULO; i++) {
-            double angulo = Math.PI * 2 * i / SEGMENTOS_CIRCULO;
+        for (int i = 0; i <= Constants.SEGMENTOS_CIRCULO; i++) {
+            double angulo = Math.PI * 2 * i / Constants.SEGMENTOS_CIRCULO;
             vertices[(i + 1) * 3] = (float) Math.cos(angulo) * 0.5f;
             vertices[(i + 1) * 3 + 1] = (float) Math.sin(angulo) * 0.5f;
             vertices[(i + 1) * 3 + 2] = 0.0f;

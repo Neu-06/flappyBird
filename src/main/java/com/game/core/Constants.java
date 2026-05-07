@@ -19,6 +19,7 @@ public final class Constants {
     // -------------------------------------------------------------------------
     public static final int ANCHO = 900;
     public static final int ALTO = 700;
+    public static final int SEGMENTOS_CIRCULO = 32;
 
     // -------------------------------------------------------------------------
     // Posicion horizontal fija del pajaro en NDC.
