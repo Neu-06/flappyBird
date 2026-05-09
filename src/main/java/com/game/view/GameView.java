@@ -109,6 +109,8 @@ public class GameView {
         GL20.glUniform2f(renderer.getUScaleLocation(), ancho, alto);
         // Rotación a 0 (vital para no heredar rotaciones de los triángulos)
         GL20.glUniform1f(renderer.getURotationLocation(), 0.0f);
+        // Desactivar textura para usar color sólido
+        GL20.glUniform1i(renderer.getUUseTextureLocation(), 0);
         // Color.
         GL20.glUniform3f(renderer.getUColorLocation(), r, g, b);
         // Dibujar 2 triangulos.
@@ -119,6 +121,8 @@ public class GameView {
     public void dibujarCirculo(float x, float y, float ancho, float alto, float r, float g, float b) {
         GL20.glUniform2f(renderer.getUOffsetLocation(), x, y);
         GL20.glUniform2f(renderer.getUScaleLocation(), ancho, alto);
+        // Desactivar textura para usar color sólido
+        GL20.glUniform1i(renderer.getUUseTextureLocation(), 0);
         GL20.glUniform3f(renderer.getUColorLocation(), r, g, b);
 
         // Cambiamos el VAO al del círculo antes de dibujar
@@ -138,11 +142,44 @@ public class GameView {
         GL20.glUniform2f(renderer.getUScaleLocation(), ancho, alto);
         // Rotacion
         GL20.glUniform1f(renderer.getURotationLocation(), rotacion);
+        // Desactivar textura para usar color sólido
+        GL20.glUniform1i(renderer.getUUseTextureLocation(), 0);
         // Color.
         GL20.glUniform3f(renderer.getUColorLocation(), r, g, b);
         // Dibujar 1 triangulo.
         GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, 3);
     }
+
+    // ==========================================
+    // NUEVO: DIBUJAR IMÁGENES (TEXTURAS)
+    // ==========================================
+    /**
+     * Dibuja una imagen cargada previamente con TextureLoader.
+     * Es ideal para fondos, pájaros, tuberías, etc.
+     * 
+     * @param textureId ID de la textura en OpenGL.
+     * @param x,y       Posición central en NDC.
+     * @param ancho,alto Tamaño en NDC.
+     */
+    public void dibujarImagen(int textureId, float x, float y, float ancho, float alto) {
+        // Activar el uso de texturas en el shader
+        GL20.glUniform1i(renderer.getUUseTextureLocation(), 1);
+
+        // Traslacion y escala.
+        GL20.glUniform2f(renderer.getUOffsetLocation(), x, y);
+        GL20.glUniform2f(renderer.getUScaleLocation(), ancho, alto);
+        GL20.glUniform1f(renderer.getURotationLocation(), 0.0f); // Sin rotación
+
+        // Enlazar la textura en la unidad 0
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
+
+        // Dibujar el quad (los UVs se generan dinámicamente en el shader)
+        GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, 6);
+
+        // Desenlazar textura para no ensuciar
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+    }
+
 
     // ==========================================
     // DIBUJO DE TEXTO
@@ -216,6 +253,7 @@ public class GameView {
         // escala
         GL20.glUniform2f(renderer.getUScaleLocation(), escala, -escala);
         GL20.glUniform1f(renderer.getURotationLocation(), 0.0f);
+        GL20.glUniform1i(renderer.getUUseTextureLocation(), 0); // Desactivar textura para dibujar letras sólidas
         GL20.glUniform3f(renderer.getUColorLocation(), r, g, b);
 
         // 5. Dibujar

@@ -38,6 +38,10 @@ public class Renderer {
     private int uColorLocation;
     private int uRotationLocation;
 
+    // --- NUEVO: Uniforms para texturas ---
+    private int uUseTextureLocation;
+    private int uTextureLocation;
+
     // VAO y VBO para el circulo.
     private int vaoCirculo;
     private int vboCirculo;
@@ -137,6 +141,9 @@ public class Renderer {
                 uniform vec2 uScale;
                 uniform float uRotation;
 
+                // Salida hacia el fragment shader
+                out vec2 TexCoord;
+
                 void main() {
                     float cosA = cos(uRotation);
                     float sinA = sin(uRotation);
@@ -148,16 +155,32 @@ public class Renderer {
 
                     vec2 finalPos = rotatedPos * uScale + uOffset;
                     gl_Position = vec4(finalPos, aPos.z, 1.0);
+
+                    // Generamos la coordenada UV local dinámicamente!
+                    // aPos va de -0.5 a 0.5. Si sumamos 0.5, tenemos de 0.0 a 1.0.
+                    TexCoord = aPos.xy + vec2(0.5, 0.5);
                 }
                 """;
 
-        // Color solido por objeto.
+        // Color solido o textura por objeto.
         String fragmentSrc = """
                 #version 330 core
                 uniform vec3 uColor;
+                uniform sampler2D uTexture;
+                uniform int uUseTexture; // 1 si usamos imagen, 0 si usamos color sólido
+
+                in vec2 TexCoord;
                 out vec4 fragColor;
+
                 void main() {
-                    fragColor = vec4(uColor, 1.0);
+                    if (uUseTexture == 1) {
+                        vec4 texColor = texture(uTexture, TexCoord);
+                        // Descartamos píxeles totalmente transparentes
+                        if(texColor.a < 0.1) discard;
+                        fragColor = texColor;
+                    } else {
+                        fragColor = vec4(uColor, 1.0);
+                    }
                 }
                 """;
 
@@ -188,8 +211,12 @@ public class Renderer {
         uScaleLocation = GL20.glGetUniformLocation(programa, "uScale");
         uColorLocation = GL20.glGetUniformLocation(programa, "uColor");
         uRotationLocation = GL20.glGetUniformLocation(programa, "uRotation");
+
+        uUseTextureLocation = GL20.glGetUniformLocation(programa, "uUseTexture");
+        uTextureLocation = GL20.glGetUniformLocation(programa, "uTexture");
+
         if (uOffsetLocation == -1 || uScaleLocation == -1 || uColorLocation == -1 || uRotationLocation == -1) {
-            throw new RuntimeException("No se pudieron obtener uniforms del shader");
+            throw new RuntimeException("No se pudieron obtener uniforms básicos del shader");
         }
 
         // Limpiar objetos shader temporales.
@@ -333,6 +360,10 @@ public class Renderer {
     /** @return location del uniform {@code uRotation}. */
     public int getURotationLocation() {
         return uRotationLocation;
+    }
+
+    public int getUUseTextureLocation() {
+        return uUseTextureLocation;
     }
 
     public int getVao() {
