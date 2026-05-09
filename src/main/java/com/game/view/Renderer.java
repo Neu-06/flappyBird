@@ -366,6 +366,10 @@ public class Renderer {
         return uUseTextureLocation;
     }
 
+    public int getUTextureLocation() {
+        return uTextureLocation;
+    }
+
     public int getVao() {
         return vao;
     }

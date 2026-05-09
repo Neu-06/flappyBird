@@ -164,6 +164,9 @@ public class GameView {
     public void dibujarImagen(int textureId, float x, float y, float ancho, float alto) {
         // Activar el uso de texturas en el shader
         GL20.glUniform1i(renderer.getUUseTextureLocation(), 1);
+        
+        // Decirle al shader que lea la textura desde la unidad 0 (GL_TEXTURE0)
+        GL20.glUniform1i(renderer.getUTextureLocation(), 0);
 
         // Traslacion y escala.
         GL20.glUniform2f(renderer.getUOffsetLocation(), x, y);
