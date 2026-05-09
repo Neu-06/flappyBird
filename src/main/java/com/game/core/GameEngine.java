@@ -49,6 +49,11 @@ public class GameEngine {
     // 0 = 1 Jugador, 1 = 2 Jugadores .
     private int seleccionMenu = 0;
 
+    /** @return true si estamos en el menú principal */
+    public boolean isEnMenu() {
+        return enMenu;
+    }
+
     /** Construye e interconecta todos los subsistemas. */
     public GameEngine() {
         renderer = new Renderer();
@@ -75,6 +80,7 @@ public class GameEngine {
         enMenu = true;
         resetGame();
         loop();
+        cleanup();
         renderer.cleanup();
     }
 
@@ -265,5 +271,10 @@ public class GameEngine {
             gameOver = true;
             renderer.actualizarTitulo(started, gameOver, pipeManager.getPuntaje());
         }
+    }
+
+    // Asegurarse de limpiar recursos del sonido al cerrar
+    public void cleanup() {
+        com.game.audio.SoundManager.cleanup();
     }
 }

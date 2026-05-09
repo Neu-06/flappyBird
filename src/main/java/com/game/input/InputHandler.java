@@ -30,13 +30,16 @@ public class InputHandler {
     /** Ventana GLFW sobre la que se hace polling. */
     private final long window;
 
-    // Deteccion de flanco para SPACE y R (equivale a prevSpace / prevR originales).
-    private boolean prevSpace;
-    private boolean prevR;
+    private boolean prevSpace = false;
+    private boolean prevR = false;
     
-    // --- NUEVO: Estado previo para navegación del menú ---
-    private boolean prevUp;
-    private boolean prevDown;
+    // Controles para navegación del menú
+    private boolean prevUp = false;
+    private boolean prevDown = false;
+
+    // IDs para efectos de sonido
+    private int sfxMove = -1;
+    private int sfxConfirm = -1;
 
     /**
      * @param engine referencia al motor de juego.
@@ -66,12 +69,23 @@ public class InputHandler {
      * {@link GameEngine#onSpacePressed()} y {@link GameEngine#onRPressed()}.
      */
     public void procesarInput() {
+        // Carga perezosa (Lazy Load) de sonidos la primera vez que se procesa input
+        if (sfxMove == -1) {
+            sfxMove = com.game.audio.SoundManager.loadSound("src/main/resources/sounds/switch_001.ogg");
+            sfxConfirm = com.game.audio.SoundManager.loadSound("src/main/resources/sounds/confirmation_003.ogg");
+        }
+
         if (GLFW.glfwGetKey(window, GLFW.GLFW_KEY_ESCAPE) == GLFW.GLFW_PRESS) {
             GLFW.glfwSetWindowShouldClose(window, true);
         }
 
+        // Tecla ESPACIO
         boolean spaceAhora = GLFW.glfwGetKey(window, GLFW.GLFW_KEY_SPACE) == GLFW.GLFW_PRESS;
         if (spaceAhora && !prevSpace) {
+            // Si estábamos en el menú y damos espacio, es una confirmación
+            if (engine.isEnMenu()) {
+                com.game.audio.SoundManager.playSound(sfxConfirm);
+            }
             engine.onSpacePressed();
         }
         prevSpace = spaceAhora;
@@ -90,6 +104,9 @@ public class InputHandler {
         boolean upAhora = GLFW.glfwGetKey(window, GLFW.GLFW_KEY_UP) == GLFW.GLFW_PRESS || 
                           GLFW.glfwGetKey(window, GLFW.GLFW_KEY_W) == GLFW.GLFW_PRESS;
         if (upAhora && !prevUp) {
+            if (engine.isEnMenu()) {
+                com.game.audio.SoundManager.playSound(sfxMove);
+            }
             engine.onUpPressed();
         }
         prevUp = upAhora;
@@ -98,8 +115,12 @@ public class InputHandler {
         boolean downAhora = GLFW.glfwGetKey(window, GLFW.GLFW_KEY_DOWN) == GLFW.GLFW_PRESS || 
                             GLFW.glfwGetKey(window, GLFW.GLFW_KEY_S) == GLFW.GLFW_PRESS;
         if (downAhora && !prevDown) {
+            if (engine.isEnMenu()) {
+                com.game.audio.SoundManager.playSound(sfxMove);
+            }
             engine.onDownPressed();
         }
         prevDown = downAhora;
     }
 }
+
