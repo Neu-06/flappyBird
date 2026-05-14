@@ -19,15 +19,39 @@ public class BirdRenderer {
         float bH = Constants.BIRD_ALTO;
 
         // COLA (Triángulo muy notable apuntando hacia atrás)
-        view.dibujarTriangulo(x - 0.06f, y, 0.07f, 0.05f, (float) (Math.PI * 0.75), 0.98f, 0.60f, 0.0f);
+        view.dibujarTriangulo(x - 0.06f, y, 0.07f, 0.05f, (float) (Math.PI * 0.75), 0.08f, 0.08f, 0.10f);
         // CUERPO REDONDEADO (Círculo amarillo principal)
-        view.dibujarCirculo(x, y, bW, bH, 0.98f, 0.85f, 0.20f);
-        // ALA (Triángulo lateral apuntando hacia abajo/atrás)
-        view.dibujarTriangulo(x - 0.02f, y - 0.01f, 0.07f, 0.04f, (float) Math.PI / 28, 1.0f, 1.0f, 0.8f);
+        view.dibujarCirculo(x, y, bW, bH, 0.15f, 0.15f, 0.18f);
+        // ALA (Triángulo lateral)
+        // Animación dinámica basada en física:
+        // Al saltar (velY positivo), el ala se inclina fuertemente hacia abajo.
+        // Al caer (velY negativo), la resistencia del aire empuja el ala hacia arriba.
+        // ALA (Triángulo lateral)
+        // 1. Obtener el tiempo continuo del motor para la oscilación
+        float tiempo = (float) org.lwjgl.glfw.GLFW.glfwGetTime();
+
+        // 2. Definir el "estado" del pájaro según su velocidad
+        boolean estaSubiendo = bird.getVelY() > 0;
+
+        // 3. Dinámica del aleteo:
+        // Si sube: aletea rápido (35.0f) y con un movimiento amplio (0.5f).
+        // Si cae: planea suavemente, el aleteo es muy lento (10.0f) y casi
+        // imperceptible (0.15f).
+        float velocidadAleteo = estaSubiendo ? 35.0f : 10.0f;
+        float amplitudAleteo = estaSubiendo ? 0.5f : 0.15f;
+
+        // 4. Inclinación base (aerodinámica):
+        // El viento empuja el ala hacia arriba cuando cae.
+        float inclinacionBase = -bird.getVelY() * 0.25f;
+
+        // Ecuación final: Inclinación base + (Onda Senoidal * Amplitud)
+        float rotacionAla = inclinacionBase + (float) (Math.sin(tiempo * velocidadAleteo) * amplitudAleteo);
+
+        view.dibujarTriangulo(x - 0.02f, y - 0.01f, 0.07f, 0.04f, rotacionAla, 0.95f, 0.0f, 0.10f);
         // PICO (Triángulo naranja apuntando hacia adelante)
-        view.dibujarTriangulo(x + 0.048f, y - 0.01f, 0.06f, 0.02f, (float) (Math.PI / 4), 1.0f, 0.5f, 0.0f);
+        view.dibujarTriangulo(x + 0.048f, y - 0.01f, 0.06f, 0.02f, (float) (Math.PI / 4), 1.0f, 0.98f, 0.95f);
         // OJO (Blanco)
-        view.dibujarCirculo(x + 0.025f, y + 0.02f, 0.035f, 0.035f, 1.0f, 1.0f, 1.0f);
+        view.dibujarCirculo(x + 0.025f, y + 0.02f, 0.035f, 0.035f, 1.0f, 0.0f, 0.0f);
         // PUPILA (Negra)
         view.dibujarCirculo(x + 0.032f, y + 0.02f, 0.012f, 0.012f, 0.0f, 0.0f, 0.0f);
     }
