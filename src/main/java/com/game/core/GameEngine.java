@@ -39,6 +39,9 @@ public class GameEngine {
     private boolean started;
     private boolean gameOver;
 
+    // Sonido de punto
+    private int sfxPoint = -1;
+
     // ==========================================
     // ESTADO DEL MENÚ
     // ==========================================
@@ -81,6 +84,10 @@ public class GameEngine {
         renderer.init();
         // InputHandler necesita el window handle disponible tras renderer.init().
         inputHandler = new InputHandler(this, renderer.getWindow());
+        
+        // Cargar el sonido de punto una vez que arranca el juego
+        sfxPoint = com.game.audio.SoundManager.loadSound("src/main/resources/sounds/point.ogg");
+
         // Estado inicial listo para jugar.
         enMenu = true;
         resetGame();
@@ -270,6 +277,8 @@ public class GameEngine {
         // internamente; aquí solo se detecta el cambio para refrescar el título).
         if (pipeManager.getPuntaje() != puntajeAntes) {
             renderer.actualizarTitulo(started, gameOver);
+            // Reproducir el sonido emparejado únicamente a este evento (solo una vez por punto)
+            com.game.audio.SoundManager.playSound(sfxPoint);
         }
 
         if (colision) {
