@@ -136,8 +136,13 @@ public class PipeManager {
      * @return true si hay colisión.
      */
     private boolean colisionaConTuberia(Tuberia t, float birdY) {
-        float birdLeft = Constants.BIRD_X - (Constants.BIRD_ANCHO * 0.5f);
-        float birdRight = Constants.BIRD_X + (Constants.BIRD_ANCHO * 0.5f);
+        // Se ajusta el hitbox sumando márgenes para incluir las nuevas figuras:
+        // - Cola (izquierda): aprox 0.04f extra.
+        // - Pico (derecha): aprox 0.03f extra.
+        float birdLeft = Constants.BIRD_X - (Constants.BIRD_ANCHO * 0.5f) - 0.04f;
+        float birdRight = Constants.BIRD_X + (Constants.BIRD_ANCHO * 0.5f) + 0.03f;
+        
+        // Vertialmente el cuerpo base es suficiente, no sobresale mucho más.
         float birdBottom = birdY - (Constants.BIRD_ALTO * 0.5f);
         float birdTop = birdY + (Constants.BIRD_ALTO * 0.5f);
 
