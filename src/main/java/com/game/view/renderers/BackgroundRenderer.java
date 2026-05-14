@@ -2,7 +2,6 @@ package com.game.view.renderers;
 
 import com.game.view.GameView;
 import com.game.view.TextureLoader;
-import org.lwjgl.opengl.GL11;
 
 /**
  * BackgroundRenderer:
@@ -22,10 +21,8 @@ public class BackgroundRenderer {
             bgTexture = TextureLoader.loadTexture("src/main/resources/textures/background.png");
         }
 
-        // 2. Limpia el buffer (útil por si la imagen tiene partes transparentes o no
-        // carga bien)
-        GL11.glClearColor(0.52f, 0.80f, 0.92f, 1.0f);
-        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
+        // 2. Ya no limpiamos el buffer aquí, eso se hace al inicio del frame en
+        // Renderer.
 
         // 3. Dibujar la imagen sobre un rectángulo que cubra toda la pantalla
         if (bgTexture != -1) {

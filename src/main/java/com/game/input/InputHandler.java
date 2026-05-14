@@ -85,7 +85,7 @@ public class InputHandler {
         boolean spaceAhora = GLFW.glfwGetKey(window, GLFW.GLFW_KEY_SPACE) == GLFW.GLFW_PRESS;
         if (spaceAhora && !prevSpace) {
             // Reproducir 'ready' al confirmar en el menú o al reiniciar después de perder
-            if (engine.isEnMenu() || engine.isGameOver()) {
+            if (engine.isEnMenu() || engine.isGameOverTotal()) {
                 com.game.audio.SoundManager.playSound(sfxConfirm);
             }
             engine.onSpacePressed();

@@ -281,9 +281,30 @@ public class Renderer {
      * de {@code GameView}.
      */
     public void beginFrame() {
+        // Limpiar el buffer de color para todo el frame
+        GL11.glClearColor(0.52f, 0.80f, 0.92f, 1.0f);
+        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
+
         // Activar pipeline y malla base.
         GL20.glUseProgram(programa);
         GL30.glBindVertexArray(vao);
+    }
+
+    /**
+     * Ajusta dinámicamente el tamaño de la ventana (para modo solitario o 2 jugadores).
+     */
+    public void cambiarTamanoVentana(boolean modoDosJugadores) {
+        int nuevoAncho = modoDosJugadores ? Constants.ANCHO * 2 : Constants.ANCHO;
+        GLFW.glfwSetWindowSize(window, nuevoAncho, Constants.ALTO);
+
+        // Volver a centrar
+        org.lwjgl.glfw.GLFWVidMode vidmode = GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor());
+        if (vidmode != null) {
+            GLFW.glfwSetWindowPos(
+                    window,
+                    (vidmode.width() - nuevoAncho) / 2,
+                    (vidmode.height() - Constants.ALTO) / 2);
+        }
     }
 
     /**

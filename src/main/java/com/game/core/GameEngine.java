@@ -31,13 +31,19 @@ public class GameEngine {
     // Subsistemas
     private final Renderer renderer;
     private final GameView gameView;
-    private final Bird bird;
-    private final PipeManager pipeManager;
-    private InputHandler inputHandler; // Se construye tras init() del renderer.
+    // Jugador 1
+    private final Bird bird1;
+    private final PipeManager pipeManager1;
+    private boolean gameOver1;
 
-    // Estado del jugador/juego (equivale a started / gameOver originales).
+    // Jugador 2
+    private final Bird bird2;
+    private final PipeManager pipeManager2;
+    private boolean gameOver2;
+
+    private boolean modoDosJugadores;
     private boolean started;
-    private boolean gameOver;
+    private InputHandler inputHandler; // Se construye tras init() del renderer.
 
     // Sonido de eventos (punto y game over)
     private int sfxPoint = -1;
@@ -58,9 +64,15 @@ public class GameEngine {
         return enMenu;
     }
 
-    /** @return true si estamos en estado Game Over */
-    public boolean isGameOver() {
-        return gameOver;
+    /**
+     * @return true si estamos en estado Game Over total (ambos jugadores muertos si
+     *         aplica)
+     */
+    public boolean isGameOverTotal() {
+        if (modoDosJugadores) {
+            return gameOver1 && gameOver2;
+        }
+        return gameOver1;
     }
 
     /** @return índice de la opción seleccionada en el menú */
@@ -71,8 +83,10 @@ public class GameEngine {
     /** Construye e interconecta todos los subsistemas. */
     public GameEngine() {
         renderer = new Renderer();
-        bird = new Bird();
-        pipeManager = new PipeManager();
+        bird1 = new Bird();
+        pipeManager1 = new PipeManager();
+        bird2 = new Bird();
+        pipeManager2 = new PipeManager();
         gameView = new GameView(renderer);
         // inputHandler necesita la ventana → se crea en run() tras renderer.init().
     }
@@ -90,7 +104,7 @@ public class GameEngine {
         renderer.init();
         // InputHandler necesita el window handle disponible tras renderer.init().
         inputHandler = new InputHandler(this, renderer.getWindow());
-        
+
         // Cargar los sonidos de eventos que gestiona el motor de juego
         sfxPoint = com.game.audio.SoundManager.loadSound("src/main/resources/sounds/point.ogg");
         sfxGameOver = com.game.audio.SoundManager.loadSound("src/main/resources/sounds/game_over.ogg");
@@ -113,11 +127,16 @@ public class GameEngine {
      * Código extraído de {@code AppFlappyBird#resetGame()}.
      */
     private void resetGame() {
-        bird.reset();
-        pipeManager.reset();
+        bird1.reset();
+        pipeManager1.reset();
+        gameOver1 = false;
+
+        bird2.reset();
+        pipeManager2.reset();
+        gameOver2 = false;
+
         started = false;
-        gameOver = false;
-        renderer.actualizarTitulo(started, gameOver);
+        renderer.actualizarTitulo(started, isGameOverTotal());
     }
 
     // -------------------------------------------------------------------------
@@ -132,28 +151,32 @@ public class GameEngine {
     public void onSpacePressed() {
         // SI ESTAMOS EN EL MENÚ
         if (enMenu) {
-            // Confirmamos la selección actual
-            if (seleccionMenu == 0) {
-                // Seleccionó 1 Jugador: Empezamos el juego normal
-                enMenu = false;
-                resetGame();
-                started = true;
-                bird.saltar(pipeManager.getMultiplicadorDificultad());
-            } else {
-                // Seleccionó 2 Jugadores: De momento no hace nada
-                System.out.println("Modo 2 jugadores aun no implementado.");
+            enMenu = false;
+            modoDosJugadores = (seleccionMenu == 1);
+            renderer.cambiarTamanoVentana(modoDosJugadores);
+            resetGame();
+            started = true;
+            bird1.saltar(pipeManager1.getMultiplicadorDificultad());
+            if (modoDosJugadores) {
+                bird2.saltar(pipeManager2.getMultiplicadorDificultad());
             }
             return;
         }
 
-        // Lógica original de juego
-        if (gameOver) {
+        // Lógica de juego: REINICIO GLOBAL
+        if (isGameOverTotal()) {
             resetGame();
             started = true;
-            bird.saltar(pipeManager.getMultiplicadorDificultad());
-        } else {
-            started = true;
-            bird.saltar(pipeManager.getMultiplicadorDificultad());
+            bird1.saltar(pipeManager1.getMultiplicadorDificultad());
+            if (modoDosJugadores) {
+                bird2.saltar(pipeManager2.getMultiplicadorDificultad());
+            }
+            return;
+        }
+
+        // SALTO JUGADOR 1
+        if (started && !gameOver1) {
+            bird1.saltar(pipeManager1.getMultiplicadorDificultad());
         }
     }
 
@@ -163,9 +186,10 @@ public class GameEngine {
      * Código original (rama R de AppFlappyBird#procesarInput():
      */
     public void onRPressed() {
-        if (gameOver) {
-            // Al presionar R, volvemos al menú ---
+        if (isGameOverTotal()) {
+            // Al presionar R, volvemos al menú y restauramos tamaño ---
             enMenu = true;
+            renderer.cambiarTamanoVentana(false);
             resetGame();
         }
     }
@@ -180,6 +204,9 @@ public class GameEngine {
     public void onUpPressed() {
         if (enMenu) {
             seleccionMenu = 0; // Sube al primer botón (1 Jugador)
+        } else if (started && modoDosJugadores && !gameOver2) {
+            // SALTO JUGADOR 2
+            bird2.saltar(pipeManager2.getMultiplicadorDificultad());
         }
     }
 
@@ -224,15 +251,38 @@ public class GameEngine {
             renderer.beginFrame();
 
             if (enMenu) {
-                // Dibujar solo el menú inicial si estamos en la pantalla de inicio
+                org.lwjgl.opengl.GL11.glViewport(0, 0, Constants.ANCHO, Constants.ALTO);
                 gameView.renderMenu(seleccionMenu);
             } else {
-                // Dibujo original del juego si ya empezamos a jugar
-                gameView.renderScene(pipeManager, gameOver);
-                gameView.renderBird(bird);
-                
-                if (gameOver) {
-                    gameView.renderGameOver(pipeManager);
+                if (!modoDosJugadores) {
+                    // Modo 1 Jugador: Pantalla completa
+                    org.lwjgl.opengl.GL11.glViewport(0, 0, Constants.ANCHO, Constants.ALTO);
+                    gameView.renderScene(pipeManager1, gameOver1);
+                    gameView.renderBird(bird1);
+                    if (gameOver1)
+                        gameView.renderGameOver(pipeManager1);
+                } else {
+                    // Modo 2 Jugadores: Split Screen ancho (Doble de tamaño físico)
+                    // Mitad izquierda (Jugador 1) usa el ancho de una pantalla normal
+                    org.lwjgl.opengl.GL11.glViewport(0, 0, Constants.ANCHO, Constants.ALTO);
+                    gameView.renderScene(pipeManager1, gameOver1);
+                    gameView.renderBird(bird1);
+                    if (gameOver1)
+                        gameView.renderGameOver(pipeManager1);
+
+                    // Mitad derecha (Jugador 2) desplazada una pantalla entera
+                    org.lwjgl.opengl.GL11.glViewport(Constants.ANCHO, 0, Constants.ANCHO, Constants.ALTO);
+                    gameView.renderScene(pipeManager2, gameOver2);
+                    gameView.renderBird(bird2);
+                    if (gameOver2)
+                        gameView.renderGameOver(pipeManager2);
+
+                    // Restaurar Viewport general para el resto del ciclo (limpieza, GUI futura,
+                    // etc)
+                    org.lwjgl.opengl.GL11.glViewport(0, 0, Constants.ANCHO * 2, Constants.ALTO);
+
+                    // Dibujar una barra vertical en el centro para separar ambos juegos
+                    gameView.dibujarRect(0.0f, 0.0f, 0.015f, 2.0f, 0.45f, 0.40f, 0.50f); // Negro
                 }
             }
 
@@ -261,39 +311,60 @@ public class GameEngine {
             return;
         }
 
-        // Si aun no inicio o ya termino, no avanza simulacion.
-        if (!started || gameOver) {
+        // Si aun no inicio o ya todos murieron, no avanza simulacion.
+        if (!started || isGameOverTotal()) {
             return;
         }
 
-        bird.update(dt, pipeManager.getMultiplicadorDificultad());
+        boolean sonidoPunto = false;
+        boolean sonidoMuerte = false;
 
-        // Colision contra techo/suelo NDC.
-        float birdTop = bird.getY() + (Constants.BIRD_ALTO * 0.5f);
-        float birdBottom = bird.getY() - (Constants.BIRD_ALTO * 0.5f);
-        boolean colisionBordes = birdTop >= 1.0f || birdBottom <= -1.0f;
-        
-        // Guardar puntaje previo para detectar si cambió
-        int puntajeAntes = pipeManager.getPuntaje();
+        // Actualización Jugador 1
+        if (!gameOver1) {
+            bird1.update(dt, pipeManager1.getMultiplicadorDificultad());
 
-        boolean colisionTuberias = pipeManager.update(dt, bird.getY());
+            float birdTop1 = bird1.getY() + (Constants.BIRD_ALTO * 0.5f);
+            float birdBottom1 = bird1.getY() - (Constants.BIRD_ALTO * 0.5f);
+            boolean colBordes1 = birdTop1 >= 1.0f || birdBottom1 <= -1.0f;
 
-        // Manejo de GAME OVER centralizado (solo ocurre 1 vez cuando gameOver cambia a true)
-        if (!gameOver && (colisionBordes || colisionTuberias)) {
-            gameOver = true;
-            renderer.actualizarTitulo(started, gameOver);
-            // Reproducir sonido de Game Over una única vez
+            int ptsAntes = pipeManager1.getPuntaje();
+            boolean colTubos1 = pipeManager1.update(dt, bird1.getY());
+
+            if (colBordes1 || colTubos1) {
+                gameOver1 = true;
+                sonidoMuerte = true;
+            } else if (pipeManager1.getPuntaje() > ptsAntes) {
+                sonidoPunto = true;
+            }
+        }
+
+        // Actualización Jugador 2
+        if (modoDosJugadores && !gameOver2) {
+            bird2.update(dt, pipeManager2.getMultiplicadorDificultad());
+
+            float birdTop2 = bird2.getY() + (Constants.BIRD_ALTO * 0.5f);
+            float birdBottom2 = bird2.getY() - (Constants.BIRD_ALTO * 0.5f);
+            boolean colBordes2 = birdTop2 >= 1.0f || birdBottom2 <= -1.0f;
+
+            int ptsAntes = pipeManager2.getPuntaje();
+            boolean colTubos2 = pipeManager2.update(dt, bird2.getY());
+
+            if (colBordes2 || colTubos2) {
+                gameOver2 = true;
+                sonidoMuerte = true;
+            } else if (pipeManager2.getPuntaje() > ptsAntes) {
+                sonidoPunto = true;
+            }
+        }
+
+        // Títulos y sonidos
+        if (sonidoMuerte) {
             com.game.audio.SoundManager.playSound(sfxGameOver);
-            return;
+            renderer.actualizarTitulo(started, isGameOverTotal());
         }
-
-        // Puntuar cuando la tuberia ya quedo atras del pajaro
-        // incrementa
-        // internamente; aquí solo se detecta el cambio para refrescar el título).
-        if (pipeManager.getPuntaje() != puntajeAntes) {
-            renderer.actualizarTitulo(started, gameOver);
-            // Reproducir el sonido emparejado únicamente a este evento (solo una vez por punto)
+        if (sonidoPunto) {
             com.game.audio.SoundManager.playSound(sfxPoint);
+            renderer.actualizarTitulo(started, isGameOverTotal());
         }
     }
 
