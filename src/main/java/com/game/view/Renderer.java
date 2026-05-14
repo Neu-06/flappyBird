@@ -177,7 +177,7 @@ public class Renderer {
                         vec4 texColor = texture(uTexture, TexCoord);
                         // Descartamos píxeles totalmente transparentes
                         if(texColor.a < 0.1) discard;
-                        fragColor = texColor;
+                        fragColor = texColor * vec4(uColor, 1.0);
                     } else {
                         fragColor = vec4(uColor, 1.0);
                     }

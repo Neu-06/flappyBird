@@ -2,9 +2,16 @@ package com.game.view;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.stb.STBImage;
 
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
@@ -67,6 +74,79 @@ public class TextureLoader {
         }
 
         // Deseleccionar la textura
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+
+        return textureId;
+    }
+
+    /**
+     * NUEVO: Crea una textura OpenGL directamente desde un texto generado con alta calidad
+     * usando el sistema de dibujo nativo de Java (Graphics2D).
+     * Esto soluciona los problemas de STBEasyFont (píxeles y fuentes extrañas).
+     * 
+     * @param texto El texto a convertir en textura.
+     * @return El ID de la textura OpenGL.
+     */
+    public static int createTextTexture(String texto) {
+        // Usar una fuente estándar bonita y gruesa
+        Font font = new Font("SansSerif", Font.BOLD, 64);
+
+        // Crear una imagen temporal para calcular el tamaño del texto
+        BufferedImage tempImg = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = tempImg.createGraphics();
+        g2d.setFont(font);
+        FontMetrics fm = g2d.getFontMetrics();
+        int width = fm.stringWidth(texto);
+        int height = fm.getHeight();
+        g2d.dispose();
+
+        // Evitar anchos o altos en cero si el texto está vacío
+        if (width == 0) width = 1;
+        if (height == 0) height = 1;
+
+        // Crear la imagen final con fondo transparente
+        BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        g2d = img.createGraphics();
+        
+        // Activar Anti-Aliasing para que las letras se vean súper suaves
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2d.setFont(font);
+        
+        // Dibujamos el texto en BLANCO para poder "teñirlo" luego con el uColor en el shader
+        g2d.setColor(Color.WHITE);
+        g2d.drawString(texto, 0, fm.getAscent());
+        g2d.dispose();
+
+        // Extraer los píxeles (ARGB)
+        int[] pixels = new int[width * height];
+        img.getRGB(0, 0, width, height, pixels, 0, width);
+
+        // Convertir al formato que OpenGL entiende (RGBA)
+        // OJO: Iteramos la 'Y' desde height-1 hasta 0 porque OpenGL espera 
+        // las texturas de abajo hacia arriba (Bottom-Up).
+        ByteBuffer buffer = BufferUtils.createByteBuffer(width * height * 4);
+        for (int y = height - 1; y >= 0; y--) {
+            for (int x = 0; x < width; x++) {
+                int pixel = pixels[y * width + x];
+                buffer.put((byte) ((pixel >> 16) & 0xFF)); // Red
+                buffer.put((byte) ((pixel >> 8) & 0xFF));  // Green
+                buffer.put((byte) (pixel & 0xFF));         // Blue
+                buffer.put((byte) ((pixel >> 24) & 0xFF)); // Alpha
+            }
+        }
+        buffer.flip();
+
+        // Crear la textura en OpenGL
+        int textureId = GL11.glGenTextures();
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
+
+        // Usar GL_LINEAR para un escalado suave
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
+
+        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 
         return textureId;

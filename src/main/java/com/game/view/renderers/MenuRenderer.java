@@ -30,7 +30,7 @@ public class MenuRenderer {
         // Dibujamos el rectángulo que representa el botón en la parte superior
         view.dibujarRect(0.0f, 0.2f, 0.6f, 0.15f, r1, g1, b1);
         // Dibujar el texto "1 JUGADOR" centrado aproximado
-        view.dibujarTexto("1 JUGADOR", -0.12f, 0.21f, 0.005f, 0.0f, 0.0f, 0.0f); // Texto en negro
+        view.dibujarTexto("1 JUGADOR", 0.0f, 0.21f, 0.005f, 0.0f, 0.0f, 0.0f); // Texto en negro
 
         // ==========================================
         // BOTÓN 2: MODO 2 JUGADORES
@@ -43,10 +43,10 @@ public class MenuRenderer {
         // Dibujamos el rectángulo en la parte inferior
         view.dibujarRect(0.0f, -0.2f, 0.6f, 0.15f, r2, g2, b2);
         // Dibujar el texto "2 JUGADORES" centrado aproximado
-        view.dibujarTexto("2 JUGADORES", -0.15f, -0.19f, 0.005f, 0.0f, 0.0f, 0.0f); // Texto en negro
+        view.dibujarTexto("2 JUGADORES", 0.0f, -0.19f, 0.005f, 0.0f, 0.0f, 0.0f); // Texto en negro
 
-        view.dibujarTexto("Muevete con las Teclas de Direccion o W/S", -0.54f, -0.39f, 0.005f, 0.0f, 0.0f, 1.0f);
-        view.dibujarTexto("Presiona ESPACIO para Seleccionar", -0.45f, -0.5f, 0.005f, 0.0f, 0.0f, 1.0f);
+        view.dibujarTexto("Muevete con las Teclas de Direccion o W/S", 0.0f, -0.39f, 0.005f, 0.0f, 0.0f, 1.0f);
+        view.dibujarTexto("Presiona ESPACIO para Seleccionar", 0.0f, -0.5f, 0.005f, 0.0f, 0.0f, 1.0f);
 
     }
 }
