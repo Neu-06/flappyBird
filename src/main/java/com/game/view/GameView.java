@@ -66,6 +66,7 @@ public class GameView {
 
     /**
      * Dibuja la pantalla de Game Over por encima de todo.
+     * 
      * @param pipes para obtener el puntaje.
      */
     public void renderGameOver(PipeManager pipes) {
@@ -73,15 +74,15 @@ public class GameView {
         dibujarRect(0.0f, 0.0f, 2.0f, 2.0f, 0.1f, 0.1f, 0.15f);
 
         // Título
-        dibujarTexto("GAME OVER", -0.4f, 0.4f, 0.012f, 1.0f, 0.3f, 0.3f); // Rojo claro
-        
+        dibujarTexto("GAME OVER", -0.0f, 0.4f, 0.012f, 1.0f, 0.3f, 0.3f); // Rojo claro
+
         // Puntos totales
         String textoPuntos = "PUNTOS: " + pipes.getPuntaje();
-        dibujarTexto(textoPuntos, -textoPuntos.length() * 0.04f, 0.1f, 0.01f, 1.0f, 1.0f, 0.0f); // Amarillo
-        
+        dibujarTexto(textoPuntos, -textoPuntos.length() * 0.0f, 0.1f, 0.01f, 1.0f, 1.0f, 0.0f); // Amarillo
+
         // Instrucciones
-        dibujarTexto("ESPACIO para Reiniciar", -0.42f, -0.2f, 0.005f, 1.0f, 1.0f, 1.0f);
-        dibujarTexto("R para volver al Menu", -0.4f, -0.4f, 0.005f, 1.0f, 1.0f, 1.0f);
+        dibujarTexto("ESPACIO para Reiniciar", -0.0f, -0.2f, 0.005f, 0.0f, 0.0f, 1.0f);
+        dibujarTexto("R para volver al Menu", -0.0f, -0.4f, 0.005f, 0.0f, 0.0f, 1.0f);
     }
 
     /**
