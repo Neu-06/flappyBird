@@ -32,14 +32,15 @@ public class InputHandler {
 
     private boolean prevSpace = false;
     private boolean prevR = false;
-    
+
     // Controles para navegación del menú
     private boolean prevUp = false;
     private boolean prevDown = false;
 
     // IDs para efectos de sonido
-    private int sfxMove = -1;
     private int sfxConfirm = -1;
+    private int sfxPlayer1 = -1;
+    private int sfxPlayer2 = -1;
 
     /**
      * @param engine referencia al motor de juego.
@@ -70,9 +71,10 @@ public class InputHandler {
      */
     public void procesarInput() {
         // Carga perezosa (Lazy Load) de sonidos la primera vez que se procesa input
-        if (sfxMove == -1) {
-            sfxMove = com.game.audio.SoundManager.loadSound("src/main/resources/sounds/switch_001.ogg");
-            sfxConfirm = com.game.audio.SoundManager.loadSound("src/main/resources/sounds/confirmation_003.ogg");
+        if (sfxConfirm == -1) {
+            sfxConfirm = com.game.audio.SoundManager.loadSound("src/main/resources/sounds/ready.ogg");
+            sfxPlayer1 = com.game.audio.SoundManager.loadSound("src/main/resources/sounds/player_1.ogg");
+            sfxPlayer2 = com.game.audio.SoundManager.loadSound("src/main/resources/sounds/player_2.ogg");
         }
 
         if (GLFW.glfwGetKey(window, GLFW.GLFW_KEY_ESCAPE) == GLFW.GLFW_PRESS) {
@@ -99,28 +101,29 @@ public class InputHandler {
         // ==========================================
         // NUEVO: TECLAS DE NAVEGACIÓN DEL MENÚ
         // ==========================================
-        
+
         // Flecha ARRIBA o W
-        boolean upAhora = GLFW.glfwGetKey(window, GLFW.GLFW_KEY_UP) == GLFW.GLFW_PRESS || 
-                          GLFW.glfwGetKey(window, GLFW.GLFW_KEY_W) == GLFW.GLFW_PRESS;
+        boolean upAhora = GLFW.glfwGetKey(window, GLFW.GLFW_KEY_UP) == GLFW.GLFW_PRESS ||
+                GLFW.glfwGetKey(window, GLFW.GLFW_KEY_W) == GLFW.GLFW_PRESS;
         if (upAhora && !prevUp) {
-            if (engine.isEnMenu()) {
-                com.game.audio.SoundManager.playSound(sfxMove);
-            }
             engine.onUpPressed();
+            if (engine.isEnMenu()) {
+                // Al subir se selecciona "1 JUGADOR", suena player 1
+                com.game.audio.SoundManager.playSound(sfxPlayer1);
+            }
         }
         prevUp = upAhora;
 
         // Flecha ABAJO o S
-        boolean downAhora = GLFW.glfwGetKey(window, GLFW.GLFW_KEY_DOWN) == GLFW.GLFW_PRESS || 
-                            GLFW.glfwGetKey(window, GLFW.GLFW_KEY_S) == GLFW.GLFW_PRESS;
+        boolean downAhora = GLFW.glfwGetKey(window, GLFW.GLFW_KEY_DOWN) == GLFW.GLFW_PRESS ||
+                GLFW.glfwGetKey(window, GLFW.GLFW_KEY_S) == GLFW.GLFW_PRESS;
         if (downAhora && !prevDown) {
-            if (engine.isEnMenu()) {
-                com.game.audio.SoundManager.playSound(sfxMove);
-            }
             engine.onDownPressed();
+            if (engine.isEnMenu()) {
+                // Al bajar se selecciona "2 JUGADORES", suena player 2
+                com.game.audio.SoundManager.playSound(sfxPlayer2);
+            }
         }
         prevDown = downAhora;
     }
 }
-

@@ -54,6 +54,11 @@ public class GameEngine {
         return enMenu;
     }
 
+    /** @return índice de la opción seleccionada en el menú */
+    public int getSeleccionMenu() {
+        return seleccionMenu;
+    }
+
     /** Construye e interconecta todos los subsistemas. */
     public GameEngine() {
         renderer = new Renderer();
