@@ -61,6 +61,13 @@ public class GameView {
         // Delegar dibujo de las tuberías
         pipeRenderer.render(this, pipes);
 
+        // Dibujar el puntaje centrado en la parte superior
+        String puntajeTexto = String.valueOf(pipes.getPuntaje());
+        // Ajuste básico para centrar el texto según la cantidad de dígitos
+        float offsetX = puntajeTexto.length() * 0.04f;
+        // Color blanco brillante para que resalte
+        dibujarTexto(puntajeTexto, -offsetX, 0.9f, 0.008f, 1.0f, 1.0f, 1.0f);
+
         // Overlay simple de game over (sin texto en framebuffer).
         if (gameOver) {
             dibujarRect(0.0f, 0.0f, 2.0f, 0.22f, 0.15f, 0.18f, 0.22f);
@@ -157,14 +164,14 @@ public class GameView {
      * Dibuja una imagen cargada previamente con TextureLoader.
      * Es ideal para fondos, pájaros, tuberías, etc.
      * 
-     * @param textureId ID de la textura en OpenGL.
-     * @param x,y       Posición central en NDC.
+     * @param textureId  ID de la textura en OpenGL.
+     * @param x,y        Posición central en NDC.
      * @param ancho,alto Tamaño en NDC.
      */
     public void dibujarImagen(int textureId, float x, float y, float ancho, float alto) {
         // Activar el uso de texturas en el shader
         GL20.glUniform1i(renderer.getUUseTextureLocation(), 1);
-        
+
         // Decirle al shader que lea la textura desde la unidad 0 (GL_TEXTURE0)
         GL20.glUniform1i(renderer.getUTextureLocation(), 0);
 
@@ -182,7 +189,6 @@ public class GameView {
         // Desenlazar textura para no ensuciar
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
     }
-
 
     // ==========================================
     // DIBUJO DE TEXTO

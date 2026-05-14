@@ -98,7 +98,7 @@ public class GameEngine {
         pipeManager.reset();
         started = false;
         gameOver = false;
-        renderer.actualizarTitulo(started, gameOver, pipeManager.getPuntaje());
+        renderer.actualizarTitulo(started, gameOver);
     }
 
     // -------------------------------------------------------------------------
@@ -250,7 +250,7 @@ public class GameEngine {
         float birdBottom = bird.getY() - (Constants.BIRD_ALTO * 0.5f);
         if (birdTop >= 1.0f || birdBottom <= -1.0f) {
             gameOver = true;
-            renderer.actualizarTitulo(started, gameOver, pipeManager.getPuntaje());
+            renderer.actualizarTitulo(started, gameOver);
             return;
         }
 
@@ -264,12 +264,12 @@ public class GameEngine {
         // incrementa
         // internamente; aquí solo se detecta el cambio para refrescar el título).
         if (pipeManager.getPuntaje() != puntajeAntes) {
-            renderer.actualizarTitulo(started, gameOver, pipeManager.getPuntaje());
+            renderer.actualizarTitulo(started, gameOver);
         }
 
         if (colision) {
             gameOver = true;
-            renderer.actualizarTitulo(started, gameOver, pipeManager.getPuntaje());
+            renderer.actualizarTitulo(started, gameOver);
         }
     }
 

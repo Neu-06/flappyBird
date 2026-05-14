@@ -294,8 +294,8 @@ public class Renderer {
      * @param gameOver si la partida ha terminado.
      * @param puntaje  puntuación a mostrar.
      */
-    public void actualizarTitulo(boolean started, boolean gameOver, int puntaje) {
-        String tituloBase = "Flappy Bird OpenGL | Puntos: " + puntaje;
+    public void actualizarTitulo(boolean started, boolean gameOver) {
+        String tituloBase = "Flappy Bird OpenGL";
         if (!started) {
             GLFW.glfwSetWindowTitle(window, tituloBase + " | SPACE para empezar");
         } else if (gameOver) {
