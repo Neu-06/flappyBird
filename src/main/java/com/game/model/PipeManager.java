@@ -56,8 +56,29 @@ public class PipeManager {
     private int puntaje;
 
     // -------------------------------------------------------------------------
+    // Dificultad Dinámica
+    // -------------------------------------------------------------------------
+    private float getVelocidadActual() {
+        // Incrementa la velocidad 0.025f por cada punto ganado.
+        // Velocidad base = 0.62f. Límite máximo = 1.30f (el doble de rápido).
+        return Math.min(Constants.VELOCIDAD_TUBERIAS + (puntaje * 0.025f), 1.30f);
+    }
+
+    private float getTiempoSpawnActual() {
+        // Mantiene la distancia física constante entre tuberías aunque vayan más rápido.
+        // Distancia = Velocidad Base * Tiempo Base
+        float distanciaFija = Constants.VELOCIDAD_TUBERIAS * Constants.TIEMPO_ENTRE_TUBERIAS;
+        return distanciaFija / getVelocidadActual();
+    }
+
+    // -------------------------------------------------------------------------
     // API pública
     // -------------------------------------------------------------------------
+
+    /** @return multiplicador de velocidad actual (1.0f base, sube progresivamente) */
+    public float getMultiplicadorDificultad() {
+        return getVelocidadActual() / Constants.VELOCIDAD_TUBERIAS;
+    }
 
     /**
      * Reinicia el gestor al estado inicial de partida.
@@ -80,9 +101,9 @@ public class PipeManager {
      * @return true si hay colisión con alguna tubería (→ game over).
      */
     public boolean update(float dt, float birdY) {
-        // Temporizador para generar nuevas tuberias.
+        // Temporizador para generar nuevas tuberias adaptado a la velocidad actual.
         timerSpawn += dt;
-        if (timerSpawn >= Constants.TIEMPO_ENTRE_TUBERIAS) {
+        if (timerSpawn >= getTiempoSpawnActual()) {
             timerSpawn = 0.0f;
             spawnTuberia();
         }
@@ -90,8 +111,8 @@ public class PipeManager {
         Iterator<Tuberia> it = tuberias.iterator();
         while (it.hasNext()) {
             Tuberia t = it.next();
-            // Avance horizontal de obstaculos (derecha -> izquierda).
-            t.x -= Constants.VELOCIDAD_TUBERIAS * dt;
+            // Avance horizontal de obstaculos adaptado a la dificultad.
+            t.x -= getVelocidadActual() * dt;
 
             // Puntuar cuando la tuberia ya quedo atras del pajaro.
             if (t.x + (Constants.TUBERIA_ANCHO * 0.5f) < Constants.BIRD_X && !t.puntuada) {

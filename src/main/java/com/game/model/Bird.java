@@ -39,24 +39,29 @@ public class Bird {
     }
 
     /**
-     * Aplica el impulso de salto.
-     * Refleja la asignación birdVelY = IMPULSO_SALTO del original.
+     * Aplica el impulso de salto alineado a la velocidad actual.
      */
-    public void saltar() {
-        velY = Constants.IMPULSO_SALTO;
+    public void saltar(float multiplicador) {
+        velY = Constants.IMPULSO_SALTO * multiplicador;
     }
 
     /**
-     * Actualiza la física vertical del pájaro para el frame actual.
+     * Actualiza la física vertical del pájaro para el frame actual,
+     * escalando la gravedad cuadráticamente para alinearla con la velocidad.
      *
      * @param dt delta-time en segundos desde el frame anterior.
+     * @param multiplicador factor de velocidad horizontal actual.
      */
-    public void update(float dt) {
-        // Integracion de fisica simple.
-        velY += Constants.GRAVEDAD * dt;
-        // Limitar velocidad de caida para sensacion jugable estable.
-        if (velY < Constants.VELOCIDAD_MAX_CAIDA) {
-            velY = Constants.VELOCIDAD_MAX_CAIDA;
+    public void update(float dt, float multiplicador) {
+        // La gravedad se escala al cuadrado del multiplicador para mantener 
+        // la misma altura de salto pero ejecutada en menos tiempo.
+        float gravedadActual = Constants.GRAVEDAD * multiplicador * multiplicador;
+        velY += gravedadActual * dt;
+        
+        // El límite de caída también se escala
+        float maxCaidaActual = Constants.VELOCIDAD_MAX_CAIDA * multiplicador;
+        if (velY < maxCaidaActual) {
+            velY = maxCaidaActual;
         }
         y += velY * dt;
     }

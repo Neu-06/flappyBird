@@ -138,7 +138,7 @@ public class GameEngine {
                 enMenu = false;
                 resetGame();
                 started = true;
-                bird.saltar();
+                bird.saltar(pipeManager.getMultiplicadorDificultad());
             } else {
                 // Seleccionó 2 Jugadores: De momento no hace nada
                 System.out.println("Modo 2 jugadores aun no implementado.");
@@ -150,10 +150,10 @@ public class GameEngine {
         if (gameOver) {
             resetGame();
             started = true;
-            bird.saltar();
+            bird.saltar(pipeManager.getMultiplicadorDificultad());
         } else {
             started = true;
-            bird.saltar();
+            bird.saltar(pipeManager.getMultiplicadorDificultad());
         }
     }
 
@@ -266,7 +266,7 @@ public class GameEngine {
             return;
         }
 
-        bird.update(dt);
+        bird.update(dt, pipeManager.getMultiplicadorDificultad());
 
         // Colision contra techo/suelo NDC.
         float birdTop = bird.getY() + (Constants.BIRD_ALTO * 0.5f);
