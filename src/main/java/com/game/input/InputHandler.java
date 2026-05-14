@@ -84,8 +84,8 @@ public class InputHandler {
         // Tecla ESPACIO
         boolean spaceAhora = GLFW.glfwGetKey(window, GLFW.GLFW_KEY_SPACE) == GLFW.GLFW_PRESS;
         if (spaceAhora && !prevSpace) {
-            // Si estábamos en el menú y damos espacio, es una confirmación
-            if (engine.isEnMenu()) {
+            // Reproducir 'ready' al confirmar en el menú o al reiniciar después de perder
+            if (engine.isEnMenu() || engine.isGameOver()) {
                 com.game.audio.SoundManager.playSound(sfxConfirm);
             }
             engine.onSpacePressed();

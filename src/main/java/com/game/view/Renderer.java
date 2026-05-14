@@ -288,21 +288,13 @@ public class Renderer {
 
     /**
      * Actualiza feedback visual en barra de titulo.
-     * Extraído de AppFlappyBird#actualizarTitulo().
+     * Ya no se concatenan puntajes ni estados puesto que ahora todo se renderiza en la UI.
      *
      * @param started  si el juego ya ha arrancado.
      * @param gameOver si la partida ha terminado.
-     * @param puntaje  puntuación a mostrar.
      */
     public void actualizarTitulo(boolean started, boolean gameOver) {
-        String tituloBase = "Flappy Bird OpenGL";
-        if (!started) {
-            GLFW.glfwSetWindowTitle(window, tituloBase + " | SPACE para empezar");
-        } else if (gameOver) {
-            GLFW.glfwSetWindowTitle(window, tituloBase + " | GAME OVER - SPACE o R para reiniciar");
-        } else {
-            GLFW.glfwSetWindowTitle(window, tituloBase);
-        }
+        GLFW.glfwSetWindowTitle(window, "Flappy Bird OpenGL");
     }
 
     /**

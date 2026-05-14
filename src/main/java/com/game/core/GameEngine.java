@@ -39,8 +39,9 @@ public class GameEngine {
     private boolean started;
     private boolean gameOver;
 
-    // Sonido de punto
+    // Sonido de eventos (punto y game over)
     private int sfxPoint = -1;
+    private int sfxGameOver = -1;
 
     // ==========================================
     // ESTADO DEL MENÚ
@@ -55,6 +56,11 @@ public class GameEngine {
     /** @return true si estamos en el menú principal */
     public boolean isEnMenu() {
         return enMenu;
+    }
+
+    /** @return true si estamos en estado Game Over */
+    public boolean isGameOver() {
+        return gameOver;
     }
 
     /** @return índice de la opción seleccionada en el menú */
@@ -85,8 +91,9 @@ public class GameEngine {
         // InputHandler necesita el window handle disponible tras renderer.init().
         inputHandler = new InputHandler(this, renderer.getWindow());
         
-        // Cargar el sonido de punto una vez que arranca el juego
+        // Cargar los sonidos de eventos que gestiona el motor de juego
         sfxPoint = com.game.audio.SoundManager.loadSound("src/main/resources/sounds/point.ogg");
+        sfxGameOver = com.game.audio.SoundManager.loadSound("src/main/resources/sounds/game_over.ogg");
 
         // Estado inicial listo para jugar.
         enMenu = true;
@@ -223,6 +230,10 @@ public class GameEngine {
                 // Dibujo original del juego si ya empezamos a jugar
                 gameView.renderScene(pipeManager, gameOver);
                 gameView.renderBird(bird);
+                
+                if (gameOver) {
+                    gameView.renderGameOver(pipeManager);
+                }
             }
 
             // Presentar frame y leer eventos.
@@ -260,30 +271,29 @@ public class GameEngine {
         // Colision contra techo/suelo NDC.
         float birdTop = bird.getY() + (Constants.BIRD_ALTO * 0.5f);
         float birdBottom = bird.getY() - (Constants.BIRD_ALTO * 0.5f);
-        if (birdTop >= 1.0f || birdBottom <= -1.0f) {
+        boolean colisionBordes = birdTop >= 1.0f || birdBottom <= -1.0f;
+        
+        // Guardar puntaje previo para detectar si cambió
+        int puntajeAntes = pipeManager.getPuntaje();
+
+        boolean colisionTuberias = pipeManager.update(dt, bird.getY());
+
+        // Manejo de GAME OVER centralizado (solo ocurre 1 vez cuando gameOver cambia a true)
+        if (!gameOver && (colisionBordes || colisionTuberias)) {
             gameOver = true;
             renderer.actualizarTitulo(started, gameOver);
+            // Reproducir sonido de Game Over una única vez
+            com.game.audio.SoundManager.playSound(sfxGameOver);
             return;
         }
 
-        // Guardar puntaje previo para detectar si cambió (necesario para
-        // actualizarTitulo).
-        int puntajeAntes = pipeManager.getPuntaje();
-
-        boolean colision = pipeManager.update(dt, bird.getY());
-
-        // Puntuar cuando la tuberia ya quedo atras del pajaro (el PipeManager lo
+        // Puntuar cuando la tuberia ya quedo atras del pajaro
         // incrementa
         // internamente; aquí solo se detecta el cambio para refrescar el título).
         if (pipeManager.getPuntaje() != puntajeAntes) {
             renderer.actualizarTitulo(started, gameOver);
             // Reproducir el sonido emparejado únicamente a este evento (solo una vez por punto)
             com.game.audio.SoundManager.playSound(sfxPoint);
-        }
-
-        if (colision) {
-            gameOver = true;
-            renderer.actualizarTitulo(started, gameOver);
         }
     }
 

@@ -62,10 +62,26 @@ public class GameView {
         // Color blanco brillante para que resalte
         dibujarTexto(puntajeTexto, -offsetX, 0.9f, 0.008f, 1.0f, 1.0f, 1.0f);
 
-        // Overlay simple de game over (sin texto en framebuffer).
-        if (gameOver) {
-            dibujarRect(0.0f, 0.0f, 2.0f, 0.22f, 0.15f, 0.18f, 0.22f);
-        }
+    }
+
+    /**
+     * Dibuja la pantalla de Game Over por encima de todo.
+     * @param pipes para obtener el puntaje.
+     */
+    public void renderGameOver(PipeManager pipes) {
+        // Fondo oscuro semi-transparente para resaltar el texto
+        dibujarRect(0.0f, 0.0f, 2.0f, 2.0f, 0.1f, 0.1f, 0.15f);
+
+        // Título
+        dibujarTexto("GAME OVER", -0.4f, 0.4f, 0.012f, 1.0f, 0.3f, 0.3f); // Rojo claro
+        
+        // Puntos totales
+        String textoPuntos = "PUNTOS: " + pipes.getPuntaje();
+        dibujarTexto(textoPuntos, -textoPuntos.length() * 0.04f, 0.1f, 0.01f, 1.0f, 1.0f, 0.0f); // Amarillo
+        
+        // Instrucciones
+        dibujarTexto("ESPACIO para Reiniciar", -0.42f, -0.2f, 0.005f, 1.0f, 1.0f, 1.0f);
+        dibujarTexto("R para volver al Menu", -0.4f, -0.4f, 0.005f, 1.0f, 1.0f, 1.0f);
     }
 
     /**
