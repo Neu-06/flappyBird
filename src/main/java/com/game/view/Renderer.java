@@ -291,7 +291,8 @@ public class Renderer {
     }
 
     /**
-     * Ajusta dinámicamente el tamaño de la ventana (para modo solitario o 2 jugadores).
+     * Ajusta dinámicamente el tamaño de la ventana (para modo solitario o 2
+     * jugadores).
      */
     public void cambiarTamanoVentana(boolean modoDosJugadores) {
         int nuevoAncho = modoDosJugadores ? Constants.ANCHO * 2 : Constants.ANCHO;
@@ -309,13 +310,14 @@ public class Renderer {
 
     /**
      * Actualiza feedback visual en barra de titulo.
-     * Ya no se concatenan puntajes ni estados puesto que ahora todo se renderiza en la UI.
+     * Ya no se concatenan puntajes ni estados puesto que ahora todo se renderiza en
+     * la UI.
      *
      * @param started  si el juego ya ha arrancado.
      * @param gameOver si la partida ha terminado.
      */
     public void actualizarTitulo(boolean started, boolean gameOver) {
-        GLFW.glfwSetWindowTitle(window, "Flappy Bird OpenGL");
+        GLFW.glfwSetWindowTitle(window, "Flappy Bird");
     }
 
     /**
