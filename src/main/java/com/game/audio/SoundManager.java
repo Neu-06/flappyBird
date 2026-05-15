@@ -25,43 +25,45 @@ public class SoundManager {
     private static boolean isInitialized = false;
 
     /**
-     * Inicializa el sistema de audio (OpenAL). 
+     * Inicializa el sistema de audio (OpenAL).
      * Se llama automáticamente la primera vez que cargas un sonido.
      */
     private static void init() {
-        if (isInitialized) return;
+        if (isInitialized)
+            return;
 
         // Abrir el dispositivo de audio predeterminado
         String defaultDeviceName = ALC10.alcGetString(0, ALC10.ALC_DEFAULT_DEVICE_SPECIFIER);
         device = ALC10.alcOpenDevice(defaultDeviceName);
-        
+
         // Crear un contexto de audio y activarlo
-        int[] attributes = {0};
+        int[] attributes = { 0 };
         context = ALC10.alcCreateContext(device, attributes);
         ALC10.alcMakeContextCurrent(context);
-        
+
         // Crear capacidades de OpenAL
         ALCCapabilities alcCapabilities = ALC.createCapabilities(device);
         AL.createCapabilities(alcCapabilities);
-        
+
         isInitialized = true;
     }
 
     /**
      * Carga un archivo .ogg desde el disco y devuelve un ID de buffer.
      * 
-     * @param filepath Ruta al archivo OGG (ej. "src/main/resources/sounds/switch_001.ogg")
-     * @return El ID del buffer de sonido en OpenAL, o -1 si falla.
+     * param filepath Ruta al archivo OGG
+     * return El ID del buffer de sonido en OpenAL, o -1 si falla.
      */
     public static int loadSound(String filepath) {
-        if (!isInitialized) init();
+        if (!isInitialized)
+            init();
 
         IntBuffer channelsBuffer = BufferUtils.createIntBuffer(1);
         IntBuffer sampleRateBuffer = BufferUtils.createIntBuffer(1);
 
         // STBVorbis hace todo el trabajo difícil de decodificar el OGG
         ShortBuffer rawAudioBuffer = STBVorbis.stb_vorbis_decode_filename(filepath, channelsBuffer, sampleRateBuffer);
-        
+
         if (rawAudioBuffer == null) {
             System.err.println("ERROR: No se pudo cargar el sonido: " + filepath);
             return -1;
@@ -93,7 +95,8 @@ public class SoundManager {
      * @param bufferId El ID de sonido que devolvió loadSound().
      */
     public static void playSound(int bufferId) {
-        if (bufferId == -1) return;
+        if (bufferId == -1)
+            return;
 
         // Generar una "fuente emisora" temporal y reproducir el buffer
         int sourceId = AL10.alGenSources();
@@ -101,7 +104,7 @@ public class SoundManager {
         AL10.alSourcePlay(sourceId);
 
         // Nota para escalabilidad: En un motor grande aquí habría lógica
-        // para destruir el sourceId una vez termine de sonar para no saturar 
+        // para destruir el sourceId una vez termine de sonar para no saturar
         // la memoria. Para sonidos cortos de menú de momento funciona bien.
     }
 
@@ -109,7 +112,8 @@ public class SoundManager {
      * Limpia la memoria al cerrar el juego.
      */
     public static void cleanup() {
-        if (!isInitialized) return;
+        if (!isInitialized)
+            return;
         ALC10.alcMakeContextCurrent(0);
         ALC10.alcDestroyContext(context);
         ALC10.alcCloseDevice(device);

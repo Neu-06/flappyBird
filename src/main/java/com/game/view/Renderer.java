@@ -52,7 +52,6 @@ public class Renderer {
 
     /**
      * Inicializa GLFW/OpenGL + shaders + geometria base.
-     * Código extraído literalmente de AppFlappyBird#init().
      */
     public void init() {
         // Arranque de GLFW.
@@ -73,7 +72,7 @@ public class Renderer {
         GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, GLFW.GLFW_FALSE);
 
         // Crear ventana.
-        window = GLFW.glfwCreateWindow(Constants.ANCHO, Constants.ALTO, "Flappy Bird OpenGL", 0, 0);
+        window = GLFW.glfwCreateWindow(Constants.ANCHO, Constants.ALTO, "Flappy Bird", 0, 0);
         if (window == 0) {
             throw new RuntimeException("No se pudo crear la ventana");
         }
@@ -130,8 +129,6 @@ public class Renderer {
      * Crea shaders 2D:
      * - Vertex: transforma quad base con escala y offset.
      * - Fragment: color uniforme.
-     *
-     * Extraído AppFlappyBird#crearShaders()
      */
     private void crearShaders() {
         String vertexSrc = """
@@ -236,8 +233,6 @@ public class Renderer {
      * - Rango x,y de -0.5 a +0.5.
      * - 2 triangulos (6 vertices).
      * Cualquier objeto 2D se dibuja escalando y moviendo este quad.
-     *
-     * Extraído AppFlappyBird#crearQuadBase()
      */
     private void crearQuadBase() {
         float[] vertices = {
@@ -278,7 +273,7 @@ public class Renderer {
     /**
      * Activa el programa de shader y el VAO del quad base para el frame actual.
      * Debe llamarse al inicio de cada frame de dibujo, antes de las llamadas
-     * de {@code GameView}.
+     * de {code GameView}.
      */
     public void beginFrame() {
         // Limpiar el buffer de color para todo el frame
@@ -313,8 +308,8 @@ public class Renderer {
      * Ya no se concatenan puntajes ni estados puesto que ahora todo se renderiza en
      * la UI.
      *
-     * @param started  si el juego ya ha arrancado.
-     * @param gameOver si la partida ha terminado.
+     * param started si el juego ya ha arrancado.
+     * param gameOver si la partida ha terminado.
      */
     public void actualizarTitulo(boolean started, boolean gameOver) {
         GLFW.glfwSetWindowTitle(window, "Flappy Bird");
@@ -322,7 +317,6 @@ public class Renderer {
 
     /**
      * Presenta el frame renderizado e interpola eventos.
-     * Equivale al bloque al final del bucle en AppFlappyBird#loop().
      */
     public void endFrame() {
         // Presentar frame y leer eventos.
@@ -336,7 +330,6 @@ public class Renderer {
 
     /**
      * Libera todos los recursos de GPU y termina GLFW.
-     * Extraído de AppFlappyBird#cleanup().
      */
     public void cleanup() {
         GL30.glDeleteVertexArrays(vaoCirculo);

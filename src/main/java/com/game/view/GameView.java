@@ -26,11 +26,11 @@ public class GameView {
     private final PipeRenderer pipeRenderer;
     private final BirdRenderer birdRenderer;
 
-    // --- NUEVO: Renderizador para el menú de inicio ---
+    // Renderizador para el menú de inicio
     private final MenuRenderer menuRenderer;
 
     /**
-     * @param renderer instancia inicializada del {@link Renderer}.
+     * param renderer instancia inicializada del Renderer.
      */
     public GameView(Renderer renderer) {
         this.renderer = renderer;
@@ -45,8 +45,8 @@ public class GameView {
     /**
      * Render del frame (fondo y tuberías).
      *
-     * @param pipes    gestor de tuberías con la lista activa.
-     * @param gameOver true para dibujar el overlay de game over.
+     * param pipes gestor de tuberías con la lista activa.
+     * param gameOver true para dibujar el overlay de game over.
      */
     public void renderScene(PipeManager pipes, boolean gameOver) {
         // Delegar dibujo del fondo
@@ -67,7 +67,7 @@ public class GameView {
     /**
      * Dibuja la pantalla de Game Over por encima de todo.
      * 
-     * @param pipes para obtener el puntaje.
+     * param pipes para obtener el puntaje.
      */
     public void renderGameOver(PipeManager pipes) {
         // Fondo oscuro semi-transparente para resaltar el texto
@@ -88,19 +88,19 @@ public class GameView {
     /**
      * Renderiza el pájaro delegando a su renderizador específico.
      *
-     * @param bird modelo del pájaro.
+     * param bird modelo del pájaro.
      */
     public void renderBird(Bird bird) {
         birdRenderer.render(this, bird);
     }
 
     // ==========================================
-    // NUEVO MÉTODO PARA DIBUJAR EL MENÚ
+    // DIBUJA EL MENÚ
     // ==========================================
     /**
      * Renderiza el menú inicial delegando la tarea al MenuRenderer.
      * 
-     * @param seleccion índice de la opción actualmente resaltada.
+     * param seleccion índice de la opción actualmente resaltada.
      */
     public void renderMenu(int seleccion) {
         menuRenderer.render(this, seleccion);
@@ -111,13 +111,13 @@ public class GameView {
      * Expuesto para que los renderizadores específicos (BirdRenderer, etc.)
      * puedan dibujar la geometría sin conocer los detalles de OpenGL internos.
      *
-     * @param x     posición X del centro en NDC.
-     * @param y     posición Y del centro en NDC.
-     * @param ancho ancho del rectángulo en NDC.
-     * @param alto  alto del rectángulo en NDC.
-     * @param r     componente rojo [0,1].
-     * @param g     componente verde [0,1].
-     * @param b     componente azul [0,1].
+     * param x posición X del centro en NDC.
+     * param y posición Y del centro en NDC.
+     * param ancho ancho del rectángulo en NDC.
+     * param alto alto del rectángulo en NDC.
+     * param r componente rojo [0,1].
+     * param g componente verde [0,1].
+     * param b componente azul [0,1].
      */
     public void dibujarRect(float x, float y, float ancho, float alto,
             float r, float g, float b) {
@@ -175,9 +175,9 @@ public class GameView {
      * Dibuja una imagen cargada previamente con TextureLoader.
      * Es ideal para fondos, pájaros, tuberías, etc.
      * 
-     * @param textureId  ID de la textura en OpenGL.
-     * @param x,y        Posición central en NDC.
-     * @param ancho,alto Tamaño en NDC.
+     * param textureId ID de la textura en OpenGL.
+     * param x,y Posición central en NDC.
+     * param ancho,alto Tamaño en NDC.
      */
     public void dibujarImagen(int textureId, float x, float y, float ancho, float alto) {
         // Activar el uso de texturas en el shader
@@ -205,7 +205,7 @@ public class GameView {
     }
 
     // ==========================================
-    // DIBUJO DE TEXTO MEJORADO
+    // DIBUJO DE TEXTO
     // ==========================================
     // Caché para no regenerar texturas idénticas cada frame
     private java.util.Map<String, Integer> cacheTextos = new java.util.HashMap<>();
@@ -213,39 +213,39 @@ public class GameView {
     /**
      * Dibuja texto en pantalla con alta calidad.
      * 
-     * @param texto  El texto a mostrar.
-     * @param x      Posición X en NDC (ej. -0.5f).
-     * @param y      Posición Y en NDC (ej. 0.2f).
-     * @param escala Tamaño del texto (ej. 0.008f para la nueva fuente).
-     * @param r,g,b  Color RGB para teñir el texto.
+     * param texto El texto a mostrar.
+     * param x Posición X en NDC (ej. -0.5f).
+     * param y Posición Y en NDC (ej. 0.2f).
+     * param escala Tamaño del texto (ej. 0.008f para la nueva fuente).
+     * param r,g,b Color RGB para teñir el texto.
      */
     public void dibujarTexto(String texto, float x, float y, float escala, float r, float g, float b) {
-        // 1. Obtener la textura del texto desde la caché o crearla
+        // Obtener la textura del texto desde la caché o crearla
         if (!cacheTextos.containsKey(texto)) {
             cacheTextos.put(texto, TextureLoader.createTextTexture(texto));
         }
         int textureId = cacheTextos.get(texto);
 
-        // 2. Activar uso de textura y configurar uniforms
+        // Activar uso de textura y configurar uniforms
         GL20.glUniform1i(renderer.getUUseTextureLocation(), 1);
         GL20.glUniform1i(renderer.getUTextureLocation(), 0);
 
-        // 3. Ajustar el ancho en base a la longitud del texto (aproximación rápida)
+        // Ajustar el ancho en base a la longitud del texto (aproximación rápida)
         // Reducimos los multiplicadores para que coincidan mejor con la escala que
         // esperabas
         float ancho = texto.length() * escala * 6.0f;
         float alto = escala * 12.0f;
 
-        // 4. Transformaciones
+        // Transformaciones
         GL20.glUniform2f(renderer.getUOffsetLocation(), x, y);
         GL20.glUniform2f(renderer.getUScaleLocation(), ancho, alto);
         GL20.glUniform1f(renderer.getURotationLocation(), 0.0f);
 
-        // 5. Aplicar el color deseado al texto (el shader multiplicará la textura
+        // Aplicar el color deseado al texto (el shader multiplicará la textura
         // blanca por este color)
         GL20.glUniform3f(renderer.getUColorLocation(), r, g, b);
 
-        // 6. Dibujar
+        // Dibujar
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
         GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, 6);
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);

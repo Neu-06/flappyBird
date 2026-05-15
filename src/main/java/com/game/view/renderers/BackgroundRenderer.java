@@ -15,16 +15,16 @@ public class BackgroundRenderer {
     private int bgTexture = -1;
 
     public void render(GameView view) {
-        // 1. Cargamos la imagen la primera vez que se dibuja el fondo (Lazy Loading).
+        // Cargamos la imagen la primera vez que se dibuja el fondo (Lazy Loading).
         // Así nos aseguramos de que OpenGL ya está iniciado y listo.
         if (bgTexture == -1) {
             bgTexture = TextureLoader.loadTexture("src/main/resources/textures/background.png");
         }
 
-        // 2. Ya no limpiamos el buffer aquí, eso se hace al inicio del frame en
+        // Ya no limpiamos el buffer aquí, eso se hace al inicio del frame en
         // Renderer.
 
-        // 3. Dibujar la imagen sobre un rectángulo que cubra toda la pantalla
+        // Dibujar la imagen sobre un rectángulo que cubra toda la pantalla
         if (bgTexture != -1) {
             // Centro en (0.0, 0.0). Ancho y Alto de 2.0 cubren todo NDC de -1.0 a 1.0.
             view.dibujarImagen(bgTexture, 0.0f, 0.0f, 2.0f, 2.0f);

@@ -59,14 +59,14 @@ public class GameEngine {
     // 0 = 1 Jugador, 1 = 2 Jugadores .
     private int seleccionMenu = 0;
 
-    /** @return true si estamos en el menú principal */
+    /** return true si estamos en el menú principal */
     public boolean isEnMenu() {
         return enMenu;
     }
 
     /**
-     * @return true si estamos en estado Game Over total (ambos jugadores muertos si
-     *         aplica)
+     * return true si estamos en estado Game Over total
+     * (ambos jugadores muertos si aplica)
      */
     public boolean isGameOverTotal() {
         if (modoDosJugadores) {
@@ -75,7 +75,7 @@ public class GameEngine {
         return gameOver1;
     }
 
-    /** @return índice de la opción seleccionada en el menú */
+    /** return índice de la opción seleccionada en el menú */
     public int getSeleccionMenu() {
         return seleccionMenu;
     }
@@ -97,8 +97,7 @@ public class GameEngine {
 
     /**
      * Punto de entrada del motor.
-     * Flujo: {@code init → resetGame → loop → cleanup}, idéntico a
-     * {@code AppFlappyBird#run()}.
+     * Flujo: init → resetGame → loop → cleanup
      */
     public void run() {
         renderer.init();
@@ -124,7 +123,6 @@ public class GameEngine {
     /**
      * Reinicia estado de partida.
      * Se usa al iniciar app y al reiniciar tras game over.
-     * Código extraído de {@code AppFlappyBird#resetGame()}.
      */
     private void resetGame() {
         bird1.reset();
@@ -145,8 +143,6 @@ public class GameEngine {
 
     /**
      * Responde al flanco de subida de SPACE.
-     *
-     * Código original (rama SPACE de AppFlappyBird#procesarInput():
      */
     public void onSpacePressed() {
         // SI ESTAMOS EN EL MENÚ
@@ -182,8 +178,6 @@ public class GameEngine {
 
     /**
      * Responde al flanco de subida de R.
-     *
-     * Código original (rama R de AppFlappyBird#procesarInput():
      */
     public void onRPressed() {
         if (isGameOverTotal()) {
@@ -230,8 +224,6 @@ public class GameEngine {
      * - actualiza logica,
      * - renderiza,
      * - swap/poll.
-     *
-     * Extraído de AppFlappyBird#loop().
      */
     private void loop() {
         float ultimoTiempo = (float) GLFW.glfwGetTime();
@@ -247,7 +239,7 @@ public class GameEngine {
             inputHandler.procesarInput();
             actualizar(dt);
 
-            // Activar pipeline y malla base antes de los métodos de GameView.
+            // avisa que se va pintar un nuevo frame
             renderer.beginFrame();
 
             if (enMenu) {
@@ -301,9 +293,7 @@ public class GameEngine {
      * - spawn y movimiento de tuberias,
      * - puntaje y colisiones.
      *
-     * Extraído de AppFlappyBird#actualizar(float).
-     *
-     * @param dt delta-time en segundos.
+     * param dt delta-time en segundos.
      */
     private void actualizar(float dt) {
         // No actualizar física si estamos en el menú
@@ -329,12 +319,12 @@ public class GameEngine {
 
             int ptsAntes = pipeManager1.getPuntaje();
             boolean colTubos1 = pipeManager1.update(dt, bird1.getY());
-
+            // colisiono con el techo, suelo o tuberias.
             if (colBordes1 || colTubos1) {
                 gameOver1 = true;
                 sonidoMuerte = true;
             } else if (pipeManager1.getPuntaje() > ptsAntes) {
-                sonidoPunto = true;
+                sonidoPunto = true; // sonidito si se gana puntos
             }
         }
 

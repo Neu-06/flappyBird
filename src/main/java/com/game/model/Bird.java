@@ -14,24 +14,16 @@ public class Bird {
 
     /**
      * Posición vertical del pájaro en NDC.
-     * Equivale al campo birdY original.
      */
     private float y;
 
     /**
      * Velocidad vertical del pájaro en NDC/s.
-     * Equivale al campo birdVelY original.
      */
     private float velY;
 
-    // -------------------------------------------------------------------------
-    // API pública
-    // -------------------------------------------------------------------------
-
     /**
      * Reinicia la posición y velocidad al estado inicial de partida.
-     * Refleja la porción de AppFlappyBird#resetGame() que tocaba
-     * birdY = 0 y birdVelY = 0.
      */
     public void reset() {
         y = 0.0f;
@@ -39,7 +31,9 @@ public class Bird {
     }
 
     /**
-     * Aplica el impulso de salto alineado a la velocidad actual.
+     * Aplica el impulso de salto, mientras mayor sea el multiplicador mayor sera el
+     * impulso.
+     * multiplicador para compensar la velocidad horizontal.
      */
     public void saltar(float multiplicador) {
         velY = Constants.IMPULSO_SALTO * multiplicador;
@@ -49,15 +43,15 @@ public class Bird {
      * Actualiza la física vertical del pájaro para el frame actual,
      * escalando la gravedad cuadráticamente para alinearla con la velocidad.
      *
-     * @param dt delta-time en segundos desde el frame anterior.
-     * @param multiplicador factor de velocidad horizontal actual.
+     * dt: delta-time en segundos desde el frame anterior.
+     * multiplicador: para compensar la velocidad acelerada
      */
     public void update(float dt, float multiplicador) {
-        // La gravedad se escala al cuadrado del multiplicador para mantener 
+        // La gravedad se escala al cuadrado del multiplicador para mantener
         // la misma altura de salto pero ejecutada en menos tiempo.
         float gravedadActual = Constants.GRAVEDAD * multiplicador * multiplicador;
         velY += gravedadActual * dt;
-        
+
         // El límite de caída también se escala
         float maxCaidaActual = Constants.VELOCIDAD_MAX_CAIDA * multiplicador;
         if (velY < maxCaidaActual) {

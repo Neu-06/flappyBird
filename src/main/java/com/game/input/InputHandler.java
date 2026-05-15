@@ -43,8 +43,8 @@ public class InputHandler {
     private int sfxPlayer2 = -1;
 
     /**
-     * @param engine referencia al motor de juego.
-     * @param window handle de la ventana GLFW.
+     * param engine referencia al motor de juego.
+     * param window handle de la ventana GLFW.
      */
     public InputHandler(GameEngine engine, long window) {
         this.engine = engine;
@@ -63,11 +63,6 @@ public class InputHandler {
      *
      * Se usa deteccion de flanco (prevSpace/prevR) para no disparar
      * multiples acciones mientras tecla permanece presionada.
-     *
-     * <p>
-     * Extraído literalmente de {@code AppFlappyBird#procesarInput()};
-     * las ramas de mutación de estado se realizan a través de
-     * {@link GameEngine#onSpacePressed()} y {@link GameEngine#onRPressed()}.
      */
     public void procesarInput() {
         // Carga perezosa (Lazy Load) de sonidos la primera vez que se procesa input
@@ -99,7 +94,7 @@ public class InputHandler {
         prevR = rAhora;
 
         // ==========================================
-        // NUEVO: TECLAS DE NAVEGACIÓN DEL MENÚ
+        // TECLAS DE NAVEGACIÓN DEL MENÚ
         // ==========================================
 
         // Flecha ARRIBA o W

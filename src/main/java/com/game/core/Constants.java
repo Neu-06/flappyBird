@@ -19,6 +19,7 @@ public final class Constants {
     // -------------------------------------------------------------------------
     public static final int ANCHO = 900;
     public static final int ALTO = 700;
+    // cantidad de segmentos triangulares para dibujar circulos
     public static final int SEGMENTOS_CIRCULO = 32;
 
     // -------------------------------------------------------------------------
@@ -40,7 +41,7 @@ public final class Constants {
     // Parametros de tuberias.
     // -------------------------------------------------------------------------
     public static final float TUBERIA_ANCHO = 0.18f;
-    public static final float GAP_ALTO = 0.48f;
+    public static final float GAP_ALTO = 0.48f; // abertura entre tubosS
     public static final float VELOCIDAD_TUBERIAS = 0.62f;
     public static final float TIEMPO_ENTRE_TUBERIAS = 1.5f;
     public static final float GAP_MIN_CENTRO = -0.45f;

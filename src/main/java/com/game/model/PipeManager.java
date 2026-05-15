@@ -50,9 +50,9 @@ public class PipeManager {
     // RNG para variar la posicion del gap.
     private final Random random = new Random();
 
-    /** Equivale a timerSpawn de AppFlappyBird. */
+    /** temporizador que controla la aparición de nuevas tuberías */
     private float timerSpawn;
-    /** Equivale a puntaje de AppFlappyBird. */
+    /** puntaje del jugador */
     private int puntaje;
 
     // -------------------------------------------------------------------------
@@ -65,25 +65,22 @@ public class PipeManager {
     }
 
     private float getTiempoSpawnActual() {
-        // Mantiene la distancia física constante entre tuberías aunque vayan más rápido.
+        // Mantiene la distancia física constante entre tuberías aunque vayan más
+        // rápido.
         // Distancia = Velocidad Base * Tiempo Base
         float distanciaFija = Constants.VELOCIDAD_TUBERIAS * Constants.TIEMPO_ENTRE_TUBERIAS;
         return distanciaFija / getVelocidadActual();
     }
 
-    // -------------------------------------------------------------------------
-    // API pública
-    // -------------------------------------------------------------------------
-
-    /** @return multiplicador de velocidad actual (1.0f base, sube progresivamente) */
+    /**
+     * return multiplicador de velocidad actual (1.0f base, sube progresivamente)
+     */
     public float getMultiplicadorDificultad() {
         return getVelocidadActual() / Constants.VELOCIDAD_TUBERIAS;
     }
 
     /**
      * Reinicia el gestor al estado inicial de partida.
-     * Refleja la porción de AppFlappyBird#resetGame() que tocaba
-     * timerSpawn = 0, puntaje = 0 y tuberias.clear().
      */
     public void reset() {
         timerSpawn = 0.0f;
@@ -96,9 +93,9 @@ public class PipeManager {
      *
      * Código original extraído de AppFlappyBird#actualizar(float):
      *
-     * @param dt    delta-time en segundos.
-     * @param birdY posición vertical actual del pájaro (para colisión AABB).
-     * @return true si hay colisión con alguna tubería (→ game over).
+     * dt delta-time en segundos.
+     * birdY posición vertical actual del pájaro (para colisión AABB).
+     * returntrue si hay colisión con alguna tubería (→ game over).
      */
     public boolean update(float dt, float birdY) {
         // Temporizador para generar nuevas tuberias adaptado a la velocidad actual.
@@ -107,8 +104,9 @@ public class PipeManager {
             timerSpawn = 0.0f;
             spawnTuberia();
         }
-
+        // se usa un iterador para recorrer la lista de tuberias y poder eliminar
         Iterator<Tuberia> it = tuberias.iterator();
+        // verifica todas las tuberias en un frame.
         while (it.hasNext()) {
             Tuberia t = it.next();
             // Avance horizontal de obstaculos adaptado a la dificultad.
@@ -148,21 +146,17 @@ public class PipeManager {
      * 1) Si no hay overlap horizontal, no colisiona.
      * 2) Si hay overlap horizontal, colisiona si el pajaro esta fuera del gap.
      *
-     * Código original de AppFlappyBird#colisionaConTuberia(Tuberia),
-     * trasladado sin cambios; únicamente se añade birdY como parámetro
-     * porque ya no es un campo de instancia accesible directamente.
-     *
-     * @param t     tubería a evaluar.
-     * @param birdY posición vertical actual del pájaro.
-     * @return true si hay colisión.
+     * t: tubería a evaluar.
+     * birdY: posición vertical actual del pájaro.
+     * return true si hay colisión.
      */
     private boolean colisionaConTuberia(Tuberia t, float birdY) {
-        // Se ajusta el hitbox sumando márgenes para incluir las nuevas figuras:
+        // Se ajusta el hitbox sumando márgenes para incluir todas las figuras:
         // - Cola (izquierda): aprox 0.04f extra.
         // - Pico (derecha): aprox 0.03f extra.
         float birdLeft = Constants.BIRD_X - (Constants.BIRD_ANCHO * 0.5f) - 0.04f;
         float birdRight = Constants.BIRD_X + (Constants.BIRD_ANCHO * 0.5f) + 0.03f;
-        
+
         // Vertialmente el cuerpo base es suficiente, no sobresale mucho más.
         float birdBottom = birdY - (Constants.BIRD_ALTO * 0.5f);
         float birdTop = birdY + (Constants.BIRD_ALTO * 0.5f);
@@ -170,6 +164,7 @@ public class PipeManager {
         float pipeLeft = t.x - (Constants.TUBERIA_ANCHO * 0.5f);
         float pipeRight = t.x + (Constants.TUBERIA_ANCHO * 0.5f);
         boolean overlapX = birdRight > pipeLeft && birdLeft < pipeRight;
+        // no hay colision si no hay overlap horizontal overlap=superposicion
         if (!overlapX) {
             return false;
         }
