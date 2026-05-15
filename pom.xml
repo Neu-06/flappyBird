@@ -29,17 +29,19 @@
       <scope>test</scope>
     </dependency>
 
-    <!-- LWJGL Core -->
+    <!-- Núcleo de la librería LWJGL -->
     <dependency>
       <groupId>org.lwjgl</groupId>
       <artifactId>lwjgl</artifactId>
       <version>${lwjgl.version}</version>
     </dependency>
+    <!-- Módulo para Ventanas: Gestión de la ventana de Windows y Teclado -->
     <dependency>
       <groupId>org.lwjgl</groupId>
       <artifactId>lwjgl-glfw</artifactId>
       <version>${lwjgl.version}</version>
     </dependency>
+    <!-- Módulo para Gráficos: Permite usar OpenGL -->
     <dependency>
       <groupId>org.lwjgl</groupId>
       <artifactId>lwjgl-opengl</artifactId>
@@ -93,6 +95,7 @@
 
   <build>
     <plugins>
+    <!-- Plugin para compilar: Asegura que el código use Java 17 -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -101,7 +104,7 @@
           <release>17</release>
         </configuration>
       </plugin>
-
+    <!-- Plugin de ejecución: Permite correr el juego con 'mvn exec:java' -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
