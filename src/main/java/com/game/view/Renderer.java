@@ -285,23 +285,7 @@ public class Renderer {
         GL30.glBindVertexArray(vao);
     }
 
-    /**
-     * Ajusta dinámicamente el tamaño de la ventana (para modo solitario o 2
-     * jugadores).
-     */
-    public void cambiarTamanoVentana(boolean modoDosJugadores) {
-        int nuevoAncho = modoDosJugadores ? Constants.ANCHO * 2 : Constants.ANCHO;
-        GLFW.glfwSetWindowSize(window, nuevoAncho, Constants.ALTO);
 
-        // Volver a centrar
-        org.lwjgl.glfw.GLFWVidMode vidmode = GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor());
-        if (vidmode != null) {
-            GLFW.glfwSetWindowPos(
-                    window,
-                    (vidmode.width() - nuevoAncho) / 2,
-                    (vidmode.height() - Constants.ALTO) / 2);
-        }
-    }
 
     /**
      * Actualiza feedback visual en barra de titulo.

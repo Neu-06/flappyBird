@@ -38,10 +38,19 @@ public class GameEngine {
 
     // Jugador 2
     private final Bird bird2;
-    private final PipeManager pipeManager2;
     private boolean gameOver2;
 
-    private boolean modoDosJugadores;
+    // Jugador 3
+    private final Bird bird3;
+    private boolean gameOver3;
+
+    // Puntajes finales registrados al morir
+    private int puntajeFinal1 = 0;
+    private int puntajeFinal2 = 0;
+    private int puntajeFinal3 = 0;
+
+    // Cantidad de jugadores (1, 2 o 3)
+    private int numJugadores = 1;
     private boolean started;
     private InputHandler inputHandler; // Se construye tras init() del renderer.
 
@@ -56,7 +65,6 @@ public class GameEngine {
     private boolean enMenu = true;
 
     // Índice de la opción seleccionada.
-    // 0 = 1 Jugador, 1 = 2 Jugadores .
     private int seleccionMenu = 0;
 
     /** return true si estamos en el menú principal */
@@ -69,7 +77,9 @@ public class GameEngine {
      * (ambos jugadores muertos si aplica)
      */
     public boolean isGameOverTotal() {
-        if (modoDosJugadores) {
+        if (numJugadores == 3) {
+            return gameOver1 && gameOver2 && gameOver3;
+        } else if (numJugadores == 2) {
             return gameOver1 && gameOver2;
         }
         return gameOver1;
@@ -86,9 +96,8 @@ public class GameEngine {
         bird1 = new Bird();
         pipeManager1 = new PipeManager();
         bird2 = new Bird();
-        pipeManager2 = new PipeManager();
+        bird3 = new Bird();
         gameView = new GameView(renderer);
-        // inputHandler necesita la ventana → se crea en run() tras renderer.init().
     }
 
     // -------------------------------------------------------------------------
@@ -128,10 +137,15 @@ public class GameEngine {
         bird1.reset();
         pipeManager1.reset();
         gameOver1 = false;
+        puntajeFinal1 = 0;
 
         bird2.reset();
-        pipeManager2.reset();
         gameOver2 = false;
+        puntajeFinal2 = 0;
+
+        bird3.reset();
+        gameOver3 = false;
+        puntajeFinal3 = 0;
 
         started = false;
         renderer.actualizarTitulo(started, isGameOverTotal());
@@ -148,13 +162,15 @@ public class GameEngine {
         // SI ESTAMOS EN EL MENÚ
         if (enMenu) {
             enMenu = false;
-            modoDosJugadores = (seleccionMenu == 1);
-            renderer.cambiarTamanoVentana(modoDosJugadores);
+            numJugadores = seleccionMenu + 1; // 1, 2 o 3
             resetGame();
             started = true;
             bird1.saltar(pipeManager1.getMultiplicadorDificultad());
-            if (modoDosJugadores) {
-                bird2.saltar(pipeManager2.getMultiplicadorDificultad());
+            if (numJugadores >= 2) {
+                bird2.saltar(pipeManager1.getMultiplicadorDificultad());
+            }
+            if (numJugadores == 3) {
+                bird3.saltar(pipeManager1.getMultiplicadorDificultad());
             }
             return;
         }
@@ -164,8 +180,11 @@ public class GameEngine {
             resetGame();
             started = true;
             bird1.saltar(pipeManager1.getMultiplicadorDificultad());
-            if (modoDosJugadores) {
-                bird2.saltar(pipeManager2.getMultiplicadorDificultad());
+            if (numJugadores >= 2) {
+                bird2.saltar(pipeManager1.getMultiplicadorDificultad());
+            }
+            if (numJugadores == 3) {
+                bird3.saltar(pipeManager1.getMultiplicadorDificultad());
             }
             return;
         }
@@ -181,9 +200,8 @@ public class GameEngine {
      */
     public void onRPressed() {
         if (isGameOverTotal()) {
-            // Al presionar R, volvemos al menú y restauramos tamaño ---
+            // Al presionar R, volvemos al menú
             enMenu = true;
-            renderer.cambiarTamanoVentana(false);
             resetGame();
         }
     }
@@ -197,10 +215,12 @@ public class GameEngine {
      */
     public void onUpPressed() {
         if (enMenu) {
-            seleccionMenu = 0; // Sube al primer botón (1 Jugador)
-        } else if (started && modoDosJugadores && !gameOver2) {
+            seleccionMenu--;
+            if (seleccionMenu < 0)
+                seleccionMenu = 0;
+        } else if (started && numJugadores >= 2 && !gameOver2) {
             // SALTO JUGADOR 2
-            bird2.saltar(pipeManager2.getMultiplicadorDificultad());
+            bird2.saltar(pipeManager1.getMultiplicadorDificultad());
         }
     }
 
@@ -209,7 +229,18 @@ public class GameEngine {
      */
     public void onDownPressed() {
         if (enMenu) {
-            seleccionMenu = 1; // Baja al segundo botón (2 Jugadores)
+            seleccionMenu++;
+            if (seleccionMenu > 2)
+                seleccionMenu = 2; // Máximo 3 opciones
+        }
+    }
+
+    /**
+     * Responde a la tecla ENTER (Jugador 3)
+     */
+    public void onEnterPressed() {
+        if (started && numJugadores == 3 && !gameOver3 && !isGameOverTotal() && !enMenu) {
+            bird3.saltar(pipeManager1.getMultiplicadorDificultad());
         }
     }
 
@@ -246,35 +277,30 @@ public class GameEngine {
                 org.lwjgl.opengl.GL11.glViewport(0, 0, Constants.ANCHO, Constants.ALTO);
                 gameView.renderMenu(seleccionMenu);
             } else {
-                if (!modoDosJugadores) {
-                    // Modo 1 Jugador: Pantalla completa
-                    org.lwjgl.opengl.GL11.glViewport(0, 0, Constants.ANCHO, Constants.ALTO);
-                    gameView.renderScene(pipeManager1, gameOver1);
-                    gameView.renderBird(bird1);
-                    if (gameOver1)
-                        gameView.renderGameOver(pipeManager1);
-                } else {
-                    // Modo 2 Jugadores: Split Screen ancho (Doble de tamaño físico)
-                    // Mitad izquierda (Jugador 1) usa el ancho de una pantalla normal
-                    org.lwjgl.opengl.GL11.glViewport(0, 0, Constants.ANCHO, Constants.ALTO);
-                    gameView.renderScene(pipeManager1, gameOver1);
-                    gameView.renderBird(bird1);
-                    if (gameOver1)
-                        gameView.renderGameOver(pipeManager1);
+                // Siempre renderizamos a pantalla completa, sea 1 o 2 jugadores
+                org.lwjgl.opengl.GL11.glViewport(0, 0, Constants.ANCHO, Constants.ALTO);
 
-                    // Mitad derecha (Jugador 2) desplazada una pantalla entera
-                    org.lwjgl.opengl.GL11.glViewport(Constants.ANCHO, 0, Constants.ANCHO, Constants.ALTO);
-                    gameView.renderScene(pipeManager2, gameOver2);
+                // Renderizar el escenario compartido (fondo y tuberías)
+                gameView.renderScene(pipeManager1, isGameOverTotal());
+
+                // Si el J1 no está muerto, se dibuja
+                if (!gameOver1) {
+                    gameView.renderBird(bird1);
+                }
+
+                // Si el J2 no está muerto, se dibuja en el mismo escenario
+                if (numJugadores >= 2 && !gameOver2) {
                     gameView.renderBird(bird2);
-                    if (gameOver2)
-                        gameView.renderGameOver(pipeManager2);
+                }
 
-                    // Restaurar Viewport general para el resto del ciclo (limpieza, GUI futura,
-                    // etc)
-                    org.lwjgl.opengl.GL11.glViewport(0, 0, Constants.ANCHO * 2, Constants.ALTO);
+                // Si el J3 no está muerto, se dibuja en el mismo escenario
+                if (numJugadores == 3 && !gameOver3) {
+                    gameView.renderBird(bird3); // Nota: podemos cambiarle el color si queremos
+                }
 
-                    // Dibujar una barra vertical en el centro para separar ambos juegos
-                    gameView.dibujarRect(0.0f, 0.0f, 0.015f, 2.0f, 0.45f, 0.40f, 0.50f); // Negro
+                // Pantalla de Game Over unificada al terminar
+                if (isGameOverTotal()) {
+                    gameView.renderGameOver(puntajeFinal1, puntajeFinal2, puntajeFinal3, numJugadores);
                 }
             }
 
@@ -309,6 +335,8 @@ public class GameEngine {
         boolean sonidoPunto = false;
         boolean sonidoMuerte = false;
 
+        boolean dtAplicado = false; // Indica si ya avanzamos las tuberías en este frame
+
         // Actualización Jugador 1
         if (!gameOver1) {
             bird1.update(dt, pipeManager1.getMultiplicadorDificultad());
@@ -319,9 +347,12 @@ public class GameEngine {
 
             int ptsAntes = pipeManager1.getPuntaje();
             boolean colTubos1 = pipeManager1.update(dt, bird1.getY());
+            dtAplicado = true; // El J1 ya hizo avanzar el escenario
+
             // colisiono con el techo, suelo o tuberias.
-            if (colBordes1 || colTubos1) {
+            if (colBordes1 || colTubos1 || ptsAntes == 5) {
                 gameOver1 = true;
+                puntajeFinal1 = pipeManager1.getPuntaje(); // Congelar puntaje J1
                 sonidoMuerte = true;
             } else if (pipeManager1.getPuntaje() > ptsAntes) {
                 sonidoPunto = true; // sonidito si se gana puntos
@@ -329,20 +360,48 @@ public class GameEngine {
         }
 
         // Actualización Jugador 2
-        if (modoDosJugadores && !gameOver2) {
-            bird2.update(dt, pipeManager2.getMultiplicadorDificultad());
+        if (numJugadores >= 2 && !gameOver2) {
+            bird2.update(dt, pipeManager1.getMultiplicadorDificultad());
 
             float birdTop2 = bird2.getY() + (Constants.BIRD_ALTO * 0.5f);
             float birdBottom2 = bird2.getY() - (Constants.BIRD_ALTO * 0.5f);
             boolean colBordes2 = birdTop2 >= 1.0f || birdBottom2 <= -1.0f;
 
-            int ptsAntes = pipeManager2.getPuntaje();
-            boolean colTubos2 = pipeManager2.update(dt, bird2.getY());
+            int ptsAntes = pipeManager1.getPuntaje();
+            float dtTubos = dtAplicado ? 0.0f : dt;
+            boolean colTubos2 = pipeManager1.update(dtTubos, bird2.getY());
+            if (dtTubos > 0)
+                dtAplicado = true; // Si avanzó tuberías, marcarlo
 
-            if (colBordes2 || colTubos2) {
+            if (colBordes2 || colTubos2 || ptsAntes == 8) {
                 gameOver2 = true;
+                puntajeFinal2 = pipeManager1.getPuntaje(); // Congelar puntaje J2
                 sonidoMuerte = true;
-            } else if (pipeManager2.getPuntaje() > ptsAntes) {
+            } else if (!dtAplicado && pipeManager1.getPuntaje() > ptsAntes) {
+                sonidoPunto = true;
+            }
+        }
+
+        // Actualización Jugador 3
+        if (numJugadores == 3 && !gameOver3) {
+            bird3.update(dt, pipeManager1.getMultiplicadorDificultad());
+
+            float birdTop3 = bird3.getY() + (Constants.BIRD_ALTO * 0.5f);
+            float birdBottom3 = bird3.getY() - (Constants.BIRD_ALTO * 0.5f);
+            boolean colBordes3 = birdTop3 >= 1.0f || birdBottom3 <= -1.0f;
+
+            int ptsAntes = pipeManager1.getPuntaje();
+            // Solo avanzamos tuberías si ni J1 ni J2 lo hicieron
+            float dtTubos = dtAplicado ? 0.0f : dt;
+            boolean colTubos3 = pipeManager1.update(dtTubos, bird3.getY());
+            if (dtTubos > 0)
+                dtAplicado = true;
+
+            if (colBordes3 || colTubos3) {
+                gameOver3 = true;
+                puntajeFinal3 = pipeManager1.getPuntaje(); // Congelar puntaje J3
+                sonidoMuerte = true;
+            } else if (!dtAplicado && pipeManager1.getPuntaje() > ptsAntes) {
                 sonidoPunto = true;
             }
         }

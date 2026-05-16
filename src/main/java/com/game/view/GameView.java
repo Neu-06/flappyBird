@@ -67,22 +67,40 @@ public class GameView {
     /**
      * Dibuja la pantalla de Game Over por encima de todo.
      * 
-     * param pipes para obtener el puntaje.
+     * param score1 Puntaje final del Jugador 1
+     * param score2 Puntaje final del Jugador 2
+     * param score3 Puntaje final del Jugador 3
+     * param numJugadores Cantidad de jugadores en la partida
      */
-    public void renderGameOver(PipeManager pipes) {
+    public void renderGameOver(int score1, int score2, int score3, int numJugadores) {
         // Fondo oscuro semi-transparente para resaltar el texto
         dibujarRect(0.0f, 0.0f, 2.0f, 2.0f, 0.1f, 0.1f, 0.15f);
 
         // Título
-        dibujarTexto("GAME OVER", -0.0f, 0.4f, 0.012f, 1.0f, 0.3f, 0.3f); // Rojo claro
+        dibujarTexto("GAME OVER", -0.3f, 0.4f, 0.012f, 1.0f, 0.3f, 0.3f); // Rojo claro
 
-        // Puntos totales
-        String textoPuntos = "PUNTOS: " + pipes.getPuntaje();
-        dibujarTexto(textoPuntos, -textoPuntos.length() * 0.0f, 0.1f, 0.01f, 1.0f, 1.0f, 0.0f); // Amarillo
+        // Puntos totales dependiendo del modo
+        if (numJugadores >= 2) {
+            String txtP1 = "JUGADOR 1: " + score1;
+            dibujarTexto(txtP1, -0.3f, 0.1f, 0.01f, 0.4f, 0.9f, 0.4f); // Verde
+            String txtP2 = "JUGADOR 2: " + score2;
+            dibujarTexto(txtP2, -0.3f, -0.05f, 0.01f, 0.9f, 0.4f, 0.4f); // Rojo
+        } 
+        
+        if (numJugadores == 3) {
+            String txtP3 = "JUGADOR 3: " + score3;
+            dibujarTexto(txtP3, -0.3f, -0.2f, 0.01f, 0.4f, 0.4f, 0.9f); // Azul
+        }
+        
+        if (numJugadores == 1) {
+            String textoPuntos = "PUNTOS: " + score1;
+            dibujarTexto(textoPuntos, -0.2f, 0.1f, 0.01f, 1.0f, 1.0f, 0.0f); // Amarillo
+        }
 
         // Instrucciones
-        dibujarTexto("ESPACIO para Reiniciar", -0.0f, -0.2f, 0.005f, 0.0f, 0.0f, 1.0f);
-        dibujarTexto("R para volver al Menu", -0.0f, -0.4f, 0.005f, 0.0f, 0.0f, 1.0f);
+        // Ajustamos la posición para que no choque con el JUGADOR 3
+        dibujarTexto("ESPACIO para Reiniciar", -0.35f, -0.4f, 0.005f, 0.8f, 0.8f, 1.0f);
+        dibujarTexto("R para volver al Menu", -0.35f, -0.55f, 0.005f, 0.8f, 0.8f, 1.0f);
     }
 
     /**

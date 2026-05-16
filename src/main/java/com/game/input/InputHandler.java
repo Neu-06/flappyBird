@@ -32,6 +32,7 @@ public class InputHandler {
 
     private boolean prevSpace = false;
     private boolean prevR = false;
+    private boolean prevEnter = false;
 
     // Controles para navegación del menú
     private boolean prevUp = false;
@@ -41,6 +42,7 @@ public class InputHandler {
     private int sfxConfirm = -1;
     private int sfxPlayer1 = -1;
     private int sfxPlayer2 = -1;
+    private int sfxPlayer3 = -1;
 
     /**
      * param engine referencia al motor de juego.
@@ -70,6 +72,9 @@ public class InputHandler {
             sfxConfirm = com.game.audio.SoundManager.loadSound("src/main/resources/sounds/ready.ogg");
             sfxPlayer1 = com.game.audio.SoundManager.loadSound("src/main/resources/sounds/player_1.ogg");
             sfxPlayer2 = com.game.audio.SoundManager.loadSound("src/main/resources/sounds/player_2.ogg");
+            sfxPlayer3 = com.game.audio.SoundManager.loadSound("src/main/resources/sounds/player_2.ogg"); // Reutilizamos
+                                                                                                          // sonido por
+                                                                                                          // ahora
         }
 
         if (GLFW.glfwGetKey(window, GLFW.GLFW_KEY_ESCAPE) == GLFW.GLFW_PRESS) {
@@ -94,8 +99,15 @@ public class InputHandler {
         prevR = rAhora;
 
         // ==========================================
-        // TECLAS DE NAVEGACIÓN DEL MENÚ
+        // TECLAS DE NAVEGACIÓN DEL MENÚ Y JUGADORES EXTRA
         // ==========================================
+
+        // Tecla ENTER (Jugador 3)
+        boolean enterAhora = GLFW.glfwGetKey(window, GLFW.GLFW_KEY_ENTER) == GLFW.GLFW_PRESS;
+        if (enterAhora && !prevEnter) {
+            engine.onEnterPressed();
+        }
+        prevEnter = enterAhora;
 
         // Flecha ARRIBA o W
         boolean upAhora = GLFW.glfwGetKey(window, GLFW.GLFW_KEY_UP) == GLFW.GLFW_PRESS ||
